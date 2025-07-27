@@ -1,0 +1,37 @@
+@startuml PlataformaTramites
+
+skinparam monochrome true
+skinparam shadowing false
+
+left to right direction
+
+rectangle "Cliente Web" as cliente {
+  rectangle "Ventanilla\nVirtual" as front
+  rectangle "App Móvil" as mobile
+}
+
+rectangle "Spring Boot" as backend {
+  rectangle "Controladores\nREST" as controllers
+  rectangle "Servicios" as services
+  rectangle "Repositorios\nJPA" as repositories
+}
+
+database "PostgreSQL" as db {
+  frame "Entidades" {
+    rectangle "Tramites"
+    rectangle "Usuarios"
+  }
+}
+
+cloud "AWS S3" as s3 {
+  rectangle "Documentos"
+}
+
+front --> controllers : HTTP/HTTPS
+mobile --> controllers
+controllers --> services : Lógica\nde negocio
+services --> repositories : Acceso\na datos
+repositories --> db : JDBC
+services --> s3 : Almacenamiento
+
+@enduml

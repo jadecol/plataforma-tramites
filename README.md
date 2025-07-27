@@ -15,6 +15,17 @@ Sistema web completo para la gestión de:
 - **Seguimiento en tiempo real** de solicitudes
 - **Radicación presencial/virtual**
 
+## 🏛️ Arquitectura del Sistema
+
+![Diagrama de Arquitectura](/docs/images/architecture.png)
+
+```plantuml
+@startuml
+[Cliente] -> [Spring Boot] : Solicitudes HTTP
+[Spring Boot] -> [PostgreSQL] : Consultas SQL
+@enduml
+```
+
 ## 🛠️ Tecnologías Utilizadas
 | Área         | Tecnologías                                                                 |
 |--------------|----------------------------------------------------------------------------|
@@ -50,6 +61,14 @@ java -jar target/plataforma-tramites-0.0.1-SNAPSHOT.jar
 3. Haz commit de tus cambios (`git commit -m 'Add some feature'`)
 4. Haz push a la rama (`git push origin feature/nueva-funcionalidad`)
 5. Abre un Pull Request
+
+## 🖼️ Vistas del Sistema
+
+| Login | Dashboard |
+|-------|-----------|
+| ![Pantalla de Login](/docs/images/login.png) | ![Vista Principal](/docs/images/dashboard.png) |
+
+*Capturas del sistema en funcionamiento*
 
 ## 📄 Licencia
 Este proyecto está bajo la licencia MIT. Ver [LICENSE](LICENSE) para más detalles.
