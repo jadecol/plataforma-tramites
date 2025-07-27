@@ -31,3 +31,26 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Archivos IDE
+.idea/
+*.iml
+*.iws
+
+# Archivos de entorno
+.env
+application-*.properties
+!application.properties
+
+# Logs
+*.log
+logs/
+
+# Directorios de build
+target/
+bin/
+build/
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
