@@ -1,30 +1,3 @@
-//package com.gestion.tramites.dto;
-//
-//import lombok.Data;
-//import lombok.NoArgsConstructor;
-//import lombok.AllArgsConstructor;
-//
-//import java.time.LocalDateTime; // Para fechaCreacion, fechaUltimaSesion
-//
-//@Data
-//@NoArgsConstructor
-//@AllArgsConstructor
-//public class UsuarioResponseDTO {
-//
-//    private Long idUsuario;
-//    private String nombreCompleto;
-//    private String tipoDocumento;
-//    private String numeroDocumento;
-//    private String correoElectronico;
-//    private String telefono;
-//    private String rol;
-//    private LocalDateTime fechaCreacion;
-//    private LocalDateTime fechaUltimaSesion;
-//    private Boolean estaActivo;
-//    private String matriculaProfesional;
-//    private String experienciaAcreditada;
-//    // No incluir contrasenaHash por seguridad
-//}
 package com.gestion.tramites.dto;
 
 import java.time.LocalDateTime;
