@@ -1,15 +1,3 @@
-//package com.gestion.tramites.repository;
-//
-//import com.gestion.tramites.model.Solicitud;
-//import org.springframework.data.jpa.repository.JpaRepository;
-//import org.springframework.stereotype.Repository;
-//
-//@Repository
-//public interface SolicitudRepository extends JpaRepository<Solicitud, Long> {
-//    // Puedes añadir métodos personalizados si los necesitas,
-//    // por ejemplo, para buscar por número de radicación
-//    // Optional<Solicitud> findByNumeroRadicacion(String numeroRadicacion);
-//}
 package com.gestion.tramites.repository;
 
 import com.gestion.tramites.model.Solicitud;

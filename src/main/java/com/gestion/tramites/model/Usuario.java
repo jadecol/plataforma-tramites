@@ -1,7 +1,6 @@
 package com.gestion.tramites.model;
 
 import java.time.LocalDateTime;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -10,9 +9,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import jakarta.persistence.FetchType; // <--- ¡AÑADE ESTA LÍNEA!
-
-// ... el resto de tu clase Usuario ...
+import jakarta.persistence.FetchType;
 
 @Entity
 @Table(name = "usuarios")
@@ -38,10 +35,10 @@ public class Usuario {
     private String telefono;
 
     @Column(name = "rol", nullable = false)
-    private String rol; // Ej: Solicitante, Revisor, Administrador
+    private String rol;
 
     @Column(name = "contrasena_hash")
-    private String contrasenaHash; // Para almacenar la contraseña hasheada
+    private String contrasenaHash;
 
     @Column(name = "fecha_creacion", nullable = false)
     private LocalDateTime fechaCreacion;
@@ -56,30 +53,13 @@ public class Usuario {
     private String matriculaProfesional;
 
     @Column(name = "experiencia_acreditada")
-    private String experienciaAcreditada; // Para revisores o profesionales
+    private String experienciaAcreditada;
 
-    // *** NUEVO CAMPO: Relación con Entidad ***
-    @ManyToOne(fetch = FetchType.LAZY) // LAZY para cargar la entidad solo cuando se necesite
-    @JoinColumn(name = "id_entidad", nullable = true) // Nombre de la columna FK en la tabla 'usuarios'
-    private Entidad entidad; // Vincula el usuario a una Entidad (Curaduría/Secretaría)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_entidad", nullable = true)
+    private Entidad entidad;
 
-    // IMPORTANTE: Asegúrate de añadir un constructor que incluya 'entidad' si lo necesitas,
-    // o simplemente usa los setters.
-
-    // Getters y Setters existentes...
-
-    // *** NUEVOS Getters y Setters para 'entidad' ***
-    public Entidad getEntidad() {
-        return entidad;
-    }
-
-    public void setEntidad(Entidad entidad) {
-        this.entidad = entidad;
-    }
-
-
-    // Mantén el resto de getters y setters, y si tienes constructores personalizados, actualízalos.
-    // Getters y Setters (los que ya tenías)
+    // Getters y Setters
     public Long getIdUsuario() {
         return idUsuario;
     }
@@ -182,5 +162,13 @@ public class Usuario {
 
     public void setExperienciaAcreditada(String experienciaAcreditada) {
         this.experienciaAcreditada = experienciaAcreditada;
+    }
+
+    public Entidad getEntidad() {
+        return entidad;
+    }
+
+    public void setEntidad(Entidad entidad) {
+        this.entidad = entidad;
     }
 }
