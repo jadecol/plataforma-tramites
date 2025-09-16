@@ -1,7 +1,7 @@
 package com.gestion.tramites.controller;
 
 import com.gestion.tramites.model.ModalidadTramite;
-import com.gestion.tramites.service.ModalidadTramiteService;
+import com.gestion.tramites.tramite.ModalidadTramiteService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

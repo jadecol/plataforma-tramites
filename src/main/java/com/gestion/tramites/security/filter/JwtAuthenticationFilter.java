@@ -1,7 +1,8 @@
 package com.gestion.tramites.security.filter;
 
+import com.gestion.tramites.auth.CustomUserDetailsService;
 import com.gestion.tramites.security.jwt.JwtUtil;
-import com.gestion.tramites.service.CustomUserDetailsService; // Tu CustomUserDetailsService
+
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

@@ -1,7 +1,8 @@
 package com.gestion.tramites.controller;
 
 import com.gestion.tramites.model.Solicitud;
-import com.gestion.tramites.service.SolicitudService;
+import com.gestion.tramites.solicitud.SolicitudService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import com.gestion.tramites.usuario.Usuario;
+
 @Entity
 @Table(name = "solicitudes")
 public class Solicitud {

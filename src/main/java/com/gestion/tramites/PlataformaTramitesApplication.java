@@ -1,7 +1,8 @@
 package com.gestion.tramites;
 
-import com.gestion.tramites.dto.tramite.TramiteRequestDTO;
-import com.gestion.tramites.entidad.Tramite;
+import com.gestion.tramites.model.Tramite;
+import com.gestion.tramites.tramite.dto.TramiteRequestDTO;
+
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies; // Importar esto
 import org.springframework.boot.SpringApplication;

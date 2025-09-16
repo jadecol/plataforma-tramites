@@ -1,9 +1,10 @@
 package com.gestion.tramites.controller;
 
-import com.gestion.tramites.dto.tramite.TramiteRequestDTO;
-import com.gestion.tramites.dto.tramite.TramiteResponseDTO;
-import com.gestion.tramites.dto.tramite.TramiteEstadoUpdateDTO;
-import com.gestion.tramites.service.TramiteService;
+import com.gestion.tramites.tramite.TramiteService;
+import com.gestion.tramites.tramite.dto.TramiteEstadoUpdateDTO;
+import com.gestion.tramites.tramite.dto.TramiteRequestDTO;
+import com.gestion.tramites.tramite.dto.TramiteResponseDTO;
+
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

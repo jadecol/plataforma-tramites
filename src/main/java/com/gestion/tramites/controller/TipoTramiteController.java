@@ -1,7 +1,7 @@
 package com.gestion.tramites.controller;
 
 import com.gestion.tramites.model.TipoTramite; // ¡Debe ser TipoTramite!
-import com.gestion.tramites.service.TipoTramiteService; // ¡Debe ser TipoTramiteService!
+import com.gestion.tramites.tipo.TipoTramiteService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

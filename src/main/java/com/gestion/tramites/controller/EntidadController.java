@@ -1,9 +1,10 @@
 package com.gestion.tramites.controller;
 
 import com.gestion.tramites.model.Entidad; // Sigue siendo necesario para la clase
-import com.gestion.tramites.service.EntidadService;
+import com.gestion.tramites.entidad.EntidadService;
+import com.gestion.tramites.entidad.dto.EntidadDTO;
 import com.gestion.tramites.excepciones.ResourceNotFoundException;
-import com.gestion.tramites.dto.EntidadDTO; // <-- Importa el EntidadDTO
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
