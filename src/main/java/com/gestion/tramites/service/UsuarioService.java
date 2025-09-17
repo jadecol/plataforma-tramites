@@ -4,7 +4,7 @@ import com.gestion.tramites.model.Usuario;
 import com.gestion.tramites.model.Entidad; // Importa Entidad
 import com.gestion.tramites.repository.UsuarioRepository;
 import com.gestion.tramites.repository.EntidadRepository; // Importa EntidadRepository
-import com.gestion.tramites.excepciones.ResourceNotFoundException;
+import com.gestion.tramites.exception.ResourceNotFoundException;
 import com.gestion.tramites.dto.UsuarioDTO; // Para recibir datos
 import com.gestion.tramites.dto.UsuarioResponseDTO; // Para devolver datos
 import com.gestion.tramites.dto.EntidadDTO; // Para mapear la entidad en el response DTO
@@ -27,7 +27,8 @@ public class UsuarioService {
     private final PasswordGenerator passwordGenerator; // Inyecta PasswordGenerator
 
     @Autowired
-    public UsuarioService(UsuarioRepository usuarioRepository, EntidadRepository entidadRepository, PasswordGenerator passwordGenerator) {
+    public UsuarioService(UsuarioRepository usuarioRepository, EntidadRepository entidadRepository,
+            PasswordGenerator passwordGenerator) {
         this.usuarioRepository = usuarioRepository;
         this.entidadRepository = entidadRepository;
         this.passwordGenerator = passwordGenerator;
@@ -55,13 +56,15 @@ public class UsuarioService {
 
         // Mapea la Entidad a EntidadDTO si existe
         if (usuario.getEntidad() != null) {
-            EntidadDTO entidadDto = new EntidadDTO(
-                usuario.getEntidad().getId(),
-                usuario.getEntidad().getNombre(),
-                usuario.getEntidad().getNit(),
-                null, null, null, null, // No necesitas todos los detalles en el DTO de usuario, solo los básicos
-                usuario.getEntidad().isActivo()
-            );
+            EntidadDTO entidadDto =
+                    new EntidadDTO(usuario.getEntidad().getId(), usuario.getEntidad().getNombre(),
+                            usuario.getEntidad().getNit(), null, null, null, null, // No necesitas
+                                                                                   // todos los
+                                                                                   // detalles en el
+                                                                                   // DTO de
+                                                                                   // usuario, solo
+                                                                                   // los básicos
+                            usuario.getEntidad().isActivo());
             dto.setEntidad(entidadDto);
         }
         return dto;
@@ -85,10 +88,12 @@ public class UsuarioService {
         // Asociar Entidad si se proporciona un idEntidad
         if (usuarioDto.getIdEntidad() != null) {
             Entidad entidad = entidadRepository.findById(usuarioDto.getIdEntidad())
-                .orElseThrow(() -> new ResourceNotFoundException("Entidad", "id", usuarioDto.getIdEntidad()));
+                    .orElseThrow(() -> new ResourceNotFoundException("Entidad", "id",
+                            usuarioDto.getIdEntidad()));
             usuario.setEntidad(entidad);
         } else {
-            usuario.setEntidad(null); // Asegura que si no se proporciona, sea null (ej. para SOLICITANTE)
+            usuario.setEntidad(null); // Asegura que si no se proporciona, sea null (ej. para
+                                      // SOLICITANTE)
         }
         return usuario;
     }
@@ -97,7 +102,8 @@ public class UsuarioService {
     @Transactional
     public UsuarioResponseDTO crearUsuario(UsuarioDTO usuarioDto) {
         // Verificar si el correo electrónico ya existe
-        if (usuarioRepository.findByCorreoElectronico(usuarioDto.getCorreoElectronico()).isPresent()) {
+        if (usuarioRepository.findByCorreoElectronico(usuarioDto.getCorreoElectronico())
+                .isPresent()) {
             throw new IllegalArgumentException("El correo electrónico ya está registrado.");
         }
 
@@ -109,7 +115,8 @@ public class UsuarioService {
         if (usuarioDto.getContrasenaHash() != null && !usuarioDto.getContrasenaHash().isEmpty()) {
             usuario.setContrasenaHash(passwordGenerator.encode(usuarioDto.getContrasenaHash()));
         } else {
-            throw new IllegalArgumentException("La contraseña es obligatoria para nuevos usuarios.");
+            throw new IllegalArgumentException(
+                    "La contraseña es obligatoria para nuevos usuarios.");
         }
 
         Usuario nuevoUsuario = usuarioRepository.save(usuario);
@@ -118,23 +125,22 @@ public class UsuarioService {
 
     @Transactional(readOnly = true)
     public List<UsuarioResponseDTO> obtenerTodosLosUsuarios() {
-        return usuarioRepository.findAll().stream()
-                .map(this::convertToResponseDto)
+        return usuarioRepository.findAll().stream().map(this::convertToResponseDto)
                 .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
     public Optional<UsuarioResponseDTO> obtenerUsuarioPorId(Long id) {
-        return usuarioRepository.findById(id)
-                .map(this::convertToResponseDto);
+        return usuarioRepository.findById(id).map(this::convertToResponseDto);
     }
 
     @Transactional
     public UsuarioResponseDTO actualizarUsuario(Long id, UsuarioDTO usuarioDto) {
         return usuarioRepository.findById(id).map(usuarioExistente -> {
             // No permitir cambiar el correo electrónico si ya existe y es diferente
-            if (!usuarioExistente.getCorreoElectronico().equals(usuarioDto.getCorreoElectronico()) &&
-                usuarioRepository.findByCorreoElectronico(usuarioDto.getCorreoElectronico()).isPresent()) {
+            if (!usuarioExistente.getCorreoElectronico().equals(usuarioDto.getCorreoElectronico())
+                    && usuarioRepository.findByCorreoElectronico(usuarioDto.getCorreoElectronico())
+                            .isPresent()) {
                 throw new IllegalArgumentException("El nuevo correo electrónico ya está en uso.");
             }
 
@@ -146,8 +152,10 @@ public class UsuarioService {
             usuarioExistente.setRol(usuarioDto.getRol()); // Actualiza el rol
 
             // Actualizar contraseña solo si se proporciona una nueva
-            if (usuarioDto.getContrasenaHash() != null && !usuarioDto.getContrasenaHash().isEmpty()) {
-                usuarioExistente.setContrasenaHash(passwordGenerator.encode(usuarioDto.getContrasenaHash()));
+            if (usuarioDto.getContrasenaHash() != null
+                    && !usuarioDto.getContrasenaHash().isEmpty()) {
+                usuarioExistente.setContrasenaHash(
+                        passwordGenerator.encode(usuarioDto.getContrasenaHash()));
             }
 
             usuarioExistente.setEstaActivo(usuarioDto.getEstaActivo());
@@ -157,7 +165,8 @@ public class UsuarioService {
             // Actualizar la entidad asociada
             if (usuarioDto.getIdEntidad() != null) {
                 Entidad entidad = entidadRepository.findById(usuarioDto.getIdEntidad())
-                    .orElseThrow(() -> new ResourceNotFoundException("Entidad", "id", usuarioDto.getIdEntidad()));
+                        .orElseThrow(() -> new ResourceNotFoundException("Entidad", "id",
+                                usuarioDto.getIdEntidad()));
                 usuarioExistente.setEntidad(entidad);
             } else {
                 usuarioExistente.setEntidad(null); // Si el idEntidad es nulo, desasociar

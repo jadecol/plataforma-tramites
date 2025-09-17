@@ -1,6 +1,6 @@
 package com.gestion.tramites.service;
 
-import com.gestion.tramites.excepciones.ResourceNotFoundException;
+import com.gestion.tramites.exception.ResourceNotFoundException;
 import com.gestion.tramites.model.ModalidadTramite;
 import com.gestion.tramites.repository.ModalidadTramiteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,12 +26,18 @@ public class ModalidadTramiteService {
 
     public ModalidadTramite getModalidadById(Long id) {
         return modalidadTramiteRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Modalidad de Trámite", "ID", id)); // Usamos el constructor con 3 args
+                .orElseThrow(() -> new ResourceNotFoundException("Modalidad de Trámite", "ID", id)); // Usamos
+                                                                                                     // el
+                                                                                                     // constructor
+                                                                                                     // con
+                                                                                                     // 3
+                                                                                                     // args
     }
 
     public ModalidadTramite updateModalidad(Long id, ModalidadTramite detallesModalidad) {
         ModalidadTramite modalidad = getModalidadById(id);
-        modalidad.setNombre(detallesModalidad.getNombre()); // Asume que solo se puede actualizar el nombre
+        modalidad.setNombre(detallesModalidad.getNombre()); // Asume que solo se puede actualizar el
+                                                            // nombre
         return modalidadTramiteRepository.save(modalidad);
     }
 

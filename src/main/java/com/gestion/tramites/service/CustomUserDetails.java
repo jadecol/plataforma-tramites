@@ -8,25 +8,28 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.Collections;
 
-public class CustomUserDetails implements UserDetails /*, Serializable */ {
-    private static final long serialVersionUID = 1L; // <-- Añade esta línea
+public class CustomUserDetails implements UserDetails {
 
-    private Long idUsuario; // <--- ESTE CAMPO ES CLAVE
+    private Long idUsuario;
     private String correoElectronico;
     private String contrasenaHash;
     private String rol;
     private Boolean estaActivo;
+    private Long idEntidad; // NUEVO: Para multi-tenancy
+    private String nombreEntidad; // NUEVO: Para mostrar en UI
 
     public CustomUserDetails(Usuario usuario) {
-        this.idUsuario = usuario.getIdUsuario(); // <--- ASIGNACIÓN EN EL CONSTRUCTOR
+        this.idUsuario = usuario.getIdUsuario();
         this.correoElectronico = usuario.getCorreoElectronico();
         this.contrasenaHash = usuario.getContrasenaHash();
         this.rol = usuario.getRol();
         this.estaActivo = usuario.getEstaActivo();
-    }
 
-    public Long getIdUsuario() { // <--- ESTE MÉTODO ES CLAVE PARA RECUPERAR EL ID
-        return idUsuario;
+        // Extraer información de la entidad
+        if (usuario.getEntidad() != null) {
+            this.idEntidad = usuario.getEntidad().getId();
+            this.nombreEntidad = usuario.getEntidad().getNombre();
+        }
     }
 
     @Override
@@ -45,16 +48,60 @@ public class CustomUserDetails implements UserDetails /*, Serializable */ {
     }
 
     @Override
-    public boolean isAccountNonExpired() { return true; }
+    public boolean isAccountNonExpired() {
+        return true;
+    }
 
     @Override
-    public boolean isAccountNonLocked() { return true; }
+    public boolean isAccountNonLocked() {
+        return true;
+    }
 
     @Override
-    public boolean isCredentialsNonExpired() { return true; }
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
 
     @Override
     public boolean isEnabled() {
         return estaActivo != null ? estaActivo : false;
+    }
+
+    // Getters adicionales para multi-tenancy
+    public Long getIdUsuario() {
+        return idUsuario;
+    }
+
+    public String getRol() {
+        return rol;
+    }
+
+    public Long getIdEntidad() {
+        return idEntidad;
+    }
+
+    public String getNombreEntidad() {
+        return nombreEntidad;
+    }
+
+    // Métodos de utilidad para roles
+    public boolean isAdminGlobal() {
+        return "ADMIN_GLOBAL".equals(rol);
+    }
+
+    public boolean isAdminEntidad() {
+        return "ADMIN_ENTIDAD".equals(rol);
+    }
+
+    public boolean isRevisor() {
+        return "REVISOR".equals(rol);
+    }
+
+    public boolean isSolicitante() {
+        return "SOLICITANTE".equals(rol);
+    }
+
+    public boolean tieneEntidad() {
+        return idEntidad != null;
     }
 }

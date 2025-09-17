@@ -5,7 +5,7 @@ import com.gestion.tramites.repository.EntidadRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.gestion.tramites.excepciones.ResourceNotFoundException;
+import com.gestion.tramites.exception.ResourceNotFoundException;
 import com.gestion.tramites.dto.EntidadDTO; // <-- Importa el EntidadDTO
 
 import java.util.List;
@@ -27,16 +27,9 @@ public class EntidadService {
         if (entidad == null) {
             return null;
         }
-        return new EntidadDTO(
-            entidad.getId(),
-            entidad.getNombre(),
-            entidad.getNit(),
-            entidad.getDireccion(),
-            entidad.getTelefono(),
-            entidad.getEmail(),
-            entidad.getSitioWeb(),
-            entidad.isActivo()
-        );
+        return new EntidadDTO(entidad.getId(), entidad.getNombre(), entidad.getNit(),
+                entidad.getDireccion(), entidad.getTelefono(), entidad.getEmail(),
+                entidad.getSitioWeb(), entidad.isActivo());
     }
 
     // Helper para convertir EntidadDTO a Entidad
@@ -65,19 +58,20 @@ public class EntidadService {
 
     @Transactional(readOnly = true)
     public List<EntidadDTO> obtenerTodasLasEntidades() { // Devuelve lista de DTOs
-        return entidadRepository.findAll().stream()
-                .map(this::convertToDto) // Mapea cada Entidad a EntidadDTO
+        return entidadRepository.findAll().stream().map(this::convertToDto) // Mapea cada Entidad a
+                                                                            // EntidadDTO
                 .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
     public Optional<EntidadDTO> obtenerEntidadPorId(Long id) { // Devuelve Optional de DTO
-        return entidadRepository.findById(id)
-                .map(this::convertToDto); // Mapea a DTO si se encuentra
+        return entidadRepository.findById(id).map(this::convertToDto); // Mapea a DTO si se
+                                                                       // encuentra
     }
 
     @Transactional
-    public EntidadDTO actualizarEntidad(Long id, EntidadDTO entidadActualizadaDto) { // Recibe y devuelve DTO
+    public EntidadDTO actualizarEntidad(Long id, EntidadDTO entidadActualizadaDto) { // Recibe y
+                                                                                     // devuelve DTO
         return entidadRepository.findById(id).map(entidad -> {
             // Actualiza los campos de la entidad existente con los datos del DTO
             entidad.setNombre(entidadActualizadaDto.getNombre());

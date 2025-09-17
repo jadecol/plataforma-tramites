@@ -1,6 +1,6 @@
 package com.gestion.tramites.service;
 
-import com.gestion.tramites.excepciones.ResourceNotFoundException;
+import com.gestion.tramites.exception.ResourceNotFoundException;
 import com.gestion.tramites.model.TipoTramite; // ¡Debe ser TipoTramite!
 import com.gestion.tramites.repository.TipoTramiteRepository; // ¡Debe ser TipoTramiteRepository!
 import org.springframework.beans.factory.annotation.Autowired;

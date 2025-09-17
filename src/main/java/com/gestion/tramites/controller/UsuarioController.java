@@ -1,7 +1,7 @@
 package com.gestion.tramites.controller;
 
 import com.gestion.tramites.service.UsuarioService;
-import com.gestion.tramites.excepciones.ResourceNotFoundException;
+import com.gestion.tramites.exception.ResourceNotFoundException;
 import com.gestion.tramites.dto.UsuarioDTO; // Importa UsuarioDTO para solicitudes
 import com.gestion.tramites.dto.UsuarioResponseDTO; // Importa UsuarioResponseDTO para respuestas
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,12 +28,16 @@ public class UsuarioController {
     // Solo accesible por un ADMIN_GLOBAL o ADMIN_ENTIDAD (si crea usuarios dentro de su entidad)
     @PreAuthorize("hasAnyRole('ADMIN_GLOBAL', 'ADMIN_ENTIDAD')")
     @PostMapping
-    public ResponseEntity<UsuarioResponseDTO> crearUsuario(@Valid @RequestBody UsuarioDTO usuarioDto) { // Recibe UsuarioDTO
+    public ResponseEntity<UsuarioResponseDTO> crearUsuario(
+            @Valid @RequestBody UsuarioDTO usuarioDto) { // Recibe UsuarioDTO
         try {
-            UsuarioResponseDTO nuevoUsuario = usuarioService.crearUsuario(usuarioDto); // Servicio devuelve ResponseDTO
+            UsuarioResponseDTO nuevoUsuario = usuarioService.crearUsuario(usuarioDto); // Servicio
+                                                                                       // devuelve
+                                                                                       // ResponseDTO
             return new ResponseEntity<>(nuevoUsuario, HttpStatus.CREATED);
         } catch (IllegalArgumentException e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST); // Por ejemplo, si el email ya existe
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST); // Por ejemplo, si el email ya
+                                                                 // existe
         }
     }
 
@@ -41,16 +45,21 @@ public class UsuarioController {
     // Dependiendo del rol, se podrían filtrar (ej. ADMIN_ENTIDAD solo ve usuarios de su entidad)
     @PreAuthorize("hasAnyRole('ADMIN_GLOBAL', 'ADMIN_ENTIDAD')")
     @GetMapping
-    public ResponseEntity<List<UsuarioResponseDTO>> obtenerTodosLosUsuarios() { // Devuelve lista de ResponseDTOs
+    public ResponseEntity<List<UsuarioResponseDTO>> obtenerTodosLosUsuarios() { // Devuelve lista de
+                                                                                // ResponseDTOs
         List<UsuarioResponseDTO> usuarios = usuarioService.obtenerTodosLosUsuarios();
         return new ResponseEntity<>(usuarios, HttpStatus.OK);
     }
 
     // Endpoint para obtener un usuario por su ID
     // Un usuario podría ver su propio perfil
-    @PreAuthorize("hasAnyRole('ADMIN_GLOBAL', 'ADMIN_ENTIDAD', 'SOLICITANTE', 'REVISOR')") // Ajustar roles según necesidad
+    @PreAuthorize("hasAnyRole('ADMIN_GLOBAL', 'ADMIN_ENTIDAD', 'SOLICITANTE', 'REVISOR')") // Ajustar
+                                                                                           // roles
+                                                                                           // según
+                                                                                           // necesidad
     @GetMapping("/{id}")
-    public ResponseEntity<UsuarioResponseDTO> obtenerUsuarioPorId(@PathVariable Long id) { // Devuelve ResponseDTO
+    public ResponseEntity<UsuarioResponseDTO> obtenerUsuarioPorId(@PathVariable Long id) { // Devuelve
+                                                                                           // ResponseDTO
         try {
             return usuarioService.obtenerUsuarioPorId(id)
                     .map(usuarioDto -> new ResponseEntity<>(usuarioDto, HttpStatus.OK))
@@ -61,11 +70,14 @@ public class UsuarioController {
     }
 
     // Endpoint para actualizar un usuario
-    @PreAuthorize("hasAnyRole('ADMIN_GLOBAL', 'ADMIN_ENTIDAD')") // O el propio usuario para su perfil
+    @PreAuthorize("hasAnyRole('ADMIN_GLOBAL', 'ADMIN_ENTIDAD')") // O el propio usuario para su
+                                                                 // perfil
     @PutMapping("/{id}")
-    public ResponseEntity<UsuarioResponseDTO> actualizarUsuario(@PathVariable Long id, @Valid @RequestBody UsuarioDTO usuarioDto) { // Recibe y devuelve DTO
+    public ResponseEntity<UsuarioResponseDTO> actualizarUsuario(@PathVariable Long id,
+            @Valid @RequestBody UsuarioDTO usuarioDto) { // Recibe y devuelve DTO
         try {
-            UsuarioResponseDTO usuarioActualizado = usuarioService.actualizarUsuario(id, usuarioDto);
+            UsuarioResponseDTO usuarioActualizado =
+                    usuarioService.actualizarUsuario(id, usuarioDto);
             return new ResponseEntity<>(usuarioActualizado, HttpStatus.OK);
         } catch (ResourceNotFoundException ex) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -77,9 +89,11 @@ public class UsuarioController {
     // Endpoint para cambiar el estado de un usuario (activo/inactivo)
     @PreAuthorize("hasAnyRole('ADMIN_GLOBAL', 'ADMIN_ENTIDAD')")
     @PatchMapping("/{id}/estado")
-    public ResponseEntity<UsuarioResponseDTO> cambiarEstadoUsuario(@PathVariable Long id, @RequestParam boolean estaActivo) { // Devuelve DTO
+    public ResponseEntity<UsuarioResponseDTO> cambiarEstadoUsuario(@PathVariable Long id,
+            @RequestParam boolean estaActivo) { // Devuelve DTO
         try {
-            UsuarioResponseDTO usuarioActualizado = usuarioService.cambiarEstadoUsuario(id, estaActivo);
+            UsuarioResponseDTO usuarioActualizado =
+                    usuarioService.cambiarEstadoUsuario(id, estaActivo);
             return new ResponseEntity<>(usuarioActualizado, HttpStatus.OK);
         } catch (ResourceNotFoundException ex) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);

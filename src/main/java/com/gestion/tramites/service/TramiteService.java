@@ -1,200 +1,317 @@
+// ============ ARCHIVO 1: TramiteService.java ============
 package com.gestion.tramites.service;
 
+import com.gestion.tramites.context.EntityContext;
 import com.gestion.tramites.dto.tramite.TramiteRequestDTO;
 import com.gestion.tramites.dto.tramite.TramiteResponseDTO;
-import com.gestion.tramites.dto.tramite.TramiteEstadoUpdateDTO; // Si decides usarlo
-//import com.gestion.tramites.entidad.Entidad;
-import com.gestion.tramites.model.Entidad; // <-- ¡CAMBIO AQUÍ!
-import com.gestion.tramites.entidad.Tramite;
-//import com.gestion.tramites.entidad.Usuario;
-import com.gestion.tramites.model.Usuario; // <-- ¡CAMBIO AQUÍ!
-import com.gestion.tramites.repository.EntidadRepository;
-import com.gestion.tramites.repository.TramiteRepository;
-import com.gestion.tramites.repository.UsuarioRepository;
-import com.gestion.tramites.excepciones.ResourceNotFoundException; // <-- ¡CORREGIDO A PLURAL!
+import com.gestion.tramites.dto.tramite.TramitePublicoDTO;
+import com.gestion.tramites.model.*;
+import com.gestion.tramites.repository.*;
+import com.gestion.tramites.exception.ResourceNotFoundException;
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.modelmapper.ModelMapper; // Necesitarás esta dependencia
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional
 public class TramiteService {
 
-    private final TramiteRepository tramiteRepository;
-    private final UsuarioRepository usuarioRepository;
-    private final EntidadRepository entidadRepository;
-    private final ModelMapper modelMapper; // Para mapear entre Entidad/DTO
+    @Autowired
+    private TramiteRepository tramiteRepository;
 
-    public TramiteService(TramiteRepository tramiteRepository,
-                          UsuarioRepository usuarioRepository,
-                          EntidadRepository entidadRepository,
-                          ModelMapper modelMapper) {
-        this.tramiteRepository = tramiteRepository;
-        this.usuarioRepository = usuarioRepository;
-        this.entidadRepository = entidadRepository;
-        this.modelMapper = modelMapper;
-    }
+    @Autowired
+    private UsuarioRepository usuarioRepository;
 
-    // --- Métodos de CRUD para Trámites ---
+    @Autowired
+    private EntidadRepository entidadRepository;
 
-    @Transactional
-    public TramiteResponseDTO crearTramite(TramiteRequestDTO tramiteRequestDTO) {
-        // Verificar que el solicitante existe
-        Usuario solicitante = usuarioRepository.findById(tramiteRequestDTO.getIdSolicitante())
-                .orElseThrow(() -> new ResourceNotFoundException("Usuario solicitante no encontrado con ID: " + tramiteRequestDTO.getIdSolicitante()));
+    @Autowired
+    private TipoTramiteRepository tipoTramiteRepository;
 
-        // Verificar que la entidad existe
-        Entidad entidad = entidadRepository.findById(tramiteRequestDTO.getIdEntidad())
-                .orElseThrow(() -> new ResourceNotFoundException("Entidad no encontrada con ID: " + tramiteRequestDTO.getIdEntidad()));
+    @Autowired
+    private RadicacionService radicacionService;
 
-        // Mapear DTO a Entidad
-        Tramite tramite = modelMapper.map(tramiteRequestDTO, Tramite.class);
-        tramite.setSolicitante(solicitante);
+    @Autowired
+    private ModelMapper modelMapper;
+
+    // ============ MÉTODOS MULTI-TENANT (con filtrado automático) ============
+
+    /**
+     * Crear un nuevo trámite (automáticamente asociado a la entidad del usuario)
+     */
+    public TramiteResponseDTO crearTramite(TramiteRequestDTO requestDTO) {
+        // Obtener usuario autenticado
+        CustomUserDetails currentUser = getCurrentUser();
+
+        // Validar que el usuario tenga entidad (excepto ADMIN_GLOBAL)
+        if (!currentUser.isAdminGlobal() && !currentUser.tieneEntidad()) {
+            throw new IllegalStateException(
+                    "El usuario debe estar asociado a una entidad para crear trámites");
+        }
+
+        // Crear entidad Tramite
+        Tramite tramite = new Tramite();
+
+        // Establecer entidad automáticamente
+        Long entidadId = determinarEntidadParaTramite(requestDTO, currentUser);
+        Entidad entidad = entidadRepository.findById(entidadId)
+                .orElseThrow(() -> new ResourceNotFoundException("Entidad", "id", entidadId));
         tramite.setEntidad(entidad);
-        // El revisor y el estado inicial se manejan por defecto en la entidad o se asignarán después
+
+        // Establecer solicitante
+        Usuario solicitante = usuarioRepository.findById(requestDTO.getIdSolicitante())
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario", "id",
+                        requestDTO.getIdSolicitante()));
+        tramite.setSolicitante(solicitante);
+
+        // Establecer tipo de trámite
+        TipoTramite tipoTramite = tipoTramiteRepository.findById(requestDTO.getIdTipoTramite())
+                .orElseThrow(() -> new ResourceNotFoundException("TipoTramite", "id",
+                        requestDTO.getIdTipoTramite()));
+        tramite.setTipoTramite(tipoTramite);
+
+        // Generar número de radicación
+        String numeroRadicacion = radicacionService.generarNumeroRadicacion(entidad, tipoTramite);
+        tramite.setNumeroRadicacion(numeroRadicacion);
+
+        // Mapear campos adicionales
+        tramite.setObjetoTramite(requestDTO.getObjetoTramite());
+        tramite.setDescripcionProyecto(requestDTO.getDescripcionProyecto());
+        tramite.setDireccionInmueble(requestDTO.getDireccionInmueble());
+        tramite.setEstadoActual(Tramite.EstadoTramite.RADICADO);
+        tramite.setFechaRadicacion(LocalDate.now());
+
+        // Establecer relaciones opcionales
+        if (requestDTO.getIdModalidadTramite() != null) {
+            // Buscar modalidad y establecer
+        }
+        if (requestDTO.getIdSubtipoTramite() != null) {
+            // Buscar subtipo y establecer
+        }
 
         Tramite tramiteGuardado = tramiteRepository.save(tramite);
-        return modelMapper.map(tramiteGuardado, TramiteResponseDTO.class);
+        return convertToResponseDTO(tramiteGuardado);
     }
 
+    /**
+     * Obtener todos los trámites de la entidad actual
+     */
     @Transactional(readOnly = true)
-    public List<TramiteResponseDTO> getAllTramites() {
-        return tramiteRepository.findAll().stream()
-                .map(tramite -> modelMapper.map(tramite, TramiteResponseDTO.class))
-                .collect(Collectors.toList());
-    }
+    public List<TramiteResponseDTO> obtenerTramites() {
+        CustomUserDetails currentUser = getCurrentUser();
 
-    @Transactional(readOnly = true)
-    public TramiteResponseDTO getTramiteById(Long id) {
-        Tramite tramite = tramiteRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Trámite no encontrado con ID: " + id));
-        return modelMapper.map(tramite, TramiteResponseDTO.class);
-    }
-
-    @Transactional
-    public TramiteResponseDTO updateTramite(Long id, TramiteRequestDTO tramiteRequestDTO) {
-        Tramite tramiteExistente = tramiteRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Trámite no encontrado con ID: " + id));
-
-        // Actualizar campos básicos
-        tramiteExistente.setNombreTramite(tramiteRequestDTO.getNombreTramite());
-        tramiteExistente.setDescripcion(tramiteRequestDTO.getDescripcion());
-        tramiteExistente.setNumeroExpediente(tramiteRequestDTO.getNumeroExpediente());
-
-        // Actualizar solicitante (si el ID cambia y es diferente del actual)
-        if (tramiteRequestDTO.getIdSolicitante() != null &&
-            !tramiteRequestDTO.getIdSolicitante().equals(tramiteExistente.getSolicitante().getIdUsuario())) {
-            Usuario nuevoSolicitante = usuarioRepository.findById(tramiteRequestDTO.getIdSolicitante())
-                    .orElseThrow(() -> new ResourceNotFoundException("Nuevo solicitante no encontrado con ID: " + tramiteRequestDTO.getIdSolicitante()));
-            tramiteExistente.setSolicitante(nuevoSolicitante);
-        }
-
-        // Actualizar entidad (si el ID cambia y es diferente del actual)
-        if (tramiteRequestDTO.getIdEntidad() != null &&
-            !tramiteRequestDTO.getIdEntidad().equals(tramiteExistente.getEntidad().getId())) {
-            Entidad nuevaEntidad = entidadRepository.findById(tramiteRequestDTO.getIdEntidad())
-                    .orElseThrow(() -> new ResourceNotFoundException("Nueva entidad no encontrada con ID: " + tramiteRequestDTO.getIdEntidad()));
-            tramiteExistente.setEntidad(nuevaEntidad);
-        }
-
-        // Actualizar revisor (puede ser asignado o reasignado)
-        if (tramiteRequestDTO.getIdRevisor() != null) {
-            Usuario nuevoRevisor = usuarioRepository.findById(tramiteRequestDTO.getIdRevisor())
-                    .orElseThrow(() -> new ResourceNotFoundException("Revisor no encontrado con ID: " + tramiteRequestDTO.getIdRevisor()));
-            tramiteExistente.setRevisor(nuevoRevisor);
+        List<Tramite> tramites;
+        if (currentUser.isAdminGlobal()) {
+            // Admin global ve todos los trámites
+            tramites = tramiteRepository.findAll();
         } else {
-            tramiteExistente.setRevisor(null); // Si el ID del revisor es null, se desasigna
+            // Usuarios de entidad ven solo trámites de su entidad
+            tramites = tramiteRepository.findAll();
         }
 
-        // Actualizar estado y comentarios del revisor si se proporcionan
-        if (tramiteRequestDTO.getEstado() != null && !tramiteRequestDTO.getEstado().isEmpty()) {
-            try {
-                Tramite.EstadoTramite nuevoEstado = Tramite.EstadoTramite.valueOf(tramiteRequestDTO.getEstado().toUpperCase());
-                tramiteExistente.setEstado(nuevoEstado);
-                // Si el estado es final (APROBADO/RECHAZADO/CANCELADO), establecer fechaFinalizacion
-                if (nuevoEstado == Tramite.EstadoTramite.APROBADO || nuevoEstado == Tramite.EstadoTramite.RECHAZADO || nuevoEstado == Tramite.EstadoTramite.CANCELADO) {
-                    tramiteExistente.setFechaFinalizacion(java.time.LocalDateTime.now());
-                } else {
-                    tramiteExistente.setFechaFinalizacion(null); // Resetear si no es un estado final
-                }
-            } catch (IllegalArgumentException e) {
-                throw new IllegalArgumentException("Estado de trámite inválido: " + tramiteRequestDTO.getEstado());
-            }
-        }
-        tramiteExistente.setComentariosRevisor(tramiteRequestDTO.getComentariosRevisor());
-
-
-        Tramite tramiteActualizado = tramiteRepository.save(tramiteExistente);
-        return modelMapper.map(tramiteActualizado, TramiteResponseDTO.class);
+        return tramites.stream().map(this::convertToResponseDTO).collect(Collectors.toList());
     }
 
-    @Transactional
-    public void deleteTramite(Long id) {
-        if (!tramiteRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Trámite no encontrado con ID: " + id);
+    /**
+     * Obtener trámite por ID (con filtro de entidad automático)
+     */
+    @Transactional(readOnly = true)
+    public TramiteResponseDTO obtenerTramitePorId(Long id) {
+        CustomUserDetails currentUser = getCurrentUser();
+
+        Optional<Tramite> tramite;
+        if (currentUser.isAdminGlobal()) {
+            tramite = tramiteRepository.findById(id);
+        } else {
+            tramite = tramiteRepository.findById(id);
         }
-        tramiteRepository.deleteById(id);
+
+        return tramite.map(this::convertToResponseDTO)
+                .orElseThrow(() -> new ResourceNotFoundException("Tramite", "id", id));
     }
 
+    /**
+     * Actualizar estado de trámite
+     */
+    public TramiteResponseDTO actualizarEstado(Long id, Tramite.EstadoTramite nuevoEstado,
+            String comentarios) {
+        CustomUserDetails currentUser = getCurrentUser();
 
-    // --- Métodos específicos para el ciclo de vida del trámite ---
-
-    @Transactional
-    public TramiteResponseDTO asignarRevisor(Long idTramite, Long idRevisor) {
-        Tramite tramite = tramiteRepository.findById(idTramite)
-                .orElseThrow(() -> new ResourceNotFoundException("Trámite no encontrado con ID: " + idTramite));
-
-        Usuario revisor = usuarioRepository.findById(idRevisor)
-                .orElseThrow(() -> new ResourceNotFoundException("Revisor no encontrado con ID: " + idRevisor));
-
-        // Validación adicional: Asegurarse de que el revisor tenga el rol adecuado (ej. REVISOR)
-        if (!revisor.getRol().equals("REVISOR") && !revisor.getRol().equals("ADMIN_GLOBAL") && !revisor.getRol().equals("ADMIN_ENTIDAD")) {
-             throw new IllegalArgumentException("El usuario con ID " + idRevisor + " no tiene un rol válido para ser revisor.");
-        }
-        // Validación: El revisor debe pertenecer a la misma entidad que el trámite (si aplica)
-        if (!revisor.getEntidad().getId().equals(tramite.getEntidad().getId())) {
-             throw new IllegalArgumentException("El revisor debe pertenecer a la misma entidad que el trámite.");
+        Tramite tramite;
+        if (currentUser.isAdminGlobal()) {
+            tramite = tramiteRepository.findById(id)
+                    .orElseThrow(() -> new ResourceNotFoundException("Tramite", "id", id));
+        } else {
+            tramite = tramiteRepository.findById(id)
+                    .orElseThrow(() -> new ResourceNotFoundException("Tramite", "id", id));
         }
 
+        // Validar transición de estado
+        validarTransicionEstado(tramite.getEstadoActual(), nuevoEstado);
 
-        tramite.setRevisor(revisor);
-        if (tramite.getEstado() == Tramite.EstadoTramite.PENDIENTE) {
-            tramite.setEstado(Tramite.EstadoTramite.EN_REVISION); // Cambiar estado a En Revisión si estaba pendiente
+        // Actualizar estado
+        tramite.cambiarEstado(nuevoEstado, comentarios);
+
+        // Si se asigna a revisor, establecer revisor actual
+        if (nuevoEstado == Tramite.EstadoTramite.ASIGNADO && currentUser.isRevisor()) {
+            Usuario revisor = usuarioRepository.findById(currentUser.getIdUsuario())
+                    .orElseThrow(() -> new ResourceNotFoundException("Usuario", "id",
+                            currentUser.getIdUsuario()));
+            tramite.setRevisorAsignado(revisor);
         }
 
         Tramite tramiteActualizado = tramiteRepository.save(tramite);
-        return modelMapper.map(tramiteActualizado, TramiteResponseDTO.class);
+        return convertToResponseDTO(tramiteActualizado);
     }
 
-    @Transactional
-    public TramiteResponseDTO actualizarEstadoTramite(Long idTramite, TramiteEstadoUpdateDTO updateDTO) {
-        Tramite tramite = tramiteRepository.findById(idTramite)
-                .orElseThrow(() -> new ResourceNotFoundException("Trámite no encontrado con ID: " + idTramite));
+    /**
+     * Asignar revisor a trámite
+     */
+    public TramiteResponseDTO asignarRevisor(Long tramiteId, Long revisorId) {
+        CustomUserDetails currentUser = getCurrentUser();
 
-        try {
-            Tramite.EstadoTramite nuevoEstado = Tramite.EstadoTramite.valueOf(updateDTO.getNuevoEstado().toUpperCase());
-
-            // Aquí puedes añadir lógica de negocio para transiciones de estado
-            // Ej: No se puede pasar de APROBADO a PENDIENTE
-            // Ej: Solo el revisor o admin pueden cambiar el estado a APROBADO/RECHAZADO
-            // Por ahora, solo actualizamos el estado:
-            tramite.setEstado(nuevoEstado);
-            tramite.setComentariosRevisor(updateDTO.getComentariosRevisor());
-
-            // Si el estado es final (APROBADO/RECHAZADO/CANCELADO), establecer fechaFinalizacion
-            if (nuevoEstado == Tramite.EstadoTramite.APROBADO || nuevoEstado == Tramite.EstadoTramite.RECHAZADO || nuevoEstado == Tramite.EstadoTramite.CANCELADO) {
-                tramite.setFechaFinalizacion(java.time.LocalDateTime.now());
-            } else {
-                tramite.setFechaFinalizacion(null); // Resetear si no es un estado final
-            }
-
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Estado de trámite inválido: " + updateDTO.getNuevoEstado());
+        // Solo admins pueden asignar revisores
+        if (!currentUser.isAdminGlobal() && !currentUser.isAdminEntidad()) {
+            throw new IllegalStateException("Solo los administradores pueden asignar revisores");
         }
 
+        Tramite tramite = obtenerTramiteConFiltro(tramiteId, currentUser);
+        Usuario revisor = usuarioRepository.findById(revisorId)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario", "id", revisorId));
+
+        // Validar que el revisor pertenezca a la misma entidad
+        if (!currentUser.isAdminGlobal()
+                && !revisor.getEntidad().getId().equals(currentUser.getIdEntidad())) {
+            throw new IllegalStateException("El revisor debe pertenecer a la misma entidad");
+        }
+
+        tramite.setRevisorAsignado(revisor);
+        tramite.cambiarEstado(Tramite.EstadoTramite.ASIGNADO,
+                "Asignado a revisor: " + revisor.getNombreCompleto());
+
         Tramite tramiteActualizado = tramiteRepository.save(tramite);
-        return modelMapper.map(tramiteActualizado, TramiteResponseDTO.class);
+        return convertToResponseDTO(tramiteActualizado);
+    }
+
+    // ============ API PÚBLICA (sin autenticación) ============
+
+    /**
+     * Consulta pública del estado de un trámite por número de radicación
+     */
+    @Transactional(readOnly = true)
+    public TramitePublicoDTO consultarEstadoPublico(String numeroRadicacion) {
+        if (!radicacionService.validarNumeroRadicacion(numeroRadicacion)) {
+            throw new IllegalArgumentException("Número de radicación inválido");
+        }
+
+        Tramite tramite = tramiteRepository.findByNumeroRadicacion(numeroRadicacion)
+                .orElseThrow(() -> new ResourceNotFoundException("Tramite", "numeroRadicacion",
+                        numeroRadicacion));
+
+        return convertToPublicDTO(tramite);
+    }
+
+    // ============ MÉTODOS AUXILIARES ============
+
+    private CustomUserDetails getCurrentUser() {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (!(principal instanceof CustomUserDetails)) {
+            throw new IllegalStateException("Usuario no autenticado correctamente");
+        }
+        return (CustomUserDetails) principal;
+    }
+
+    private Long determinarEntidadParaTramite(TramiteRequestDTO requestDTO,
+            CustomUserDetails currentUser) {
+        // Admin global puede especificar entidad
+        if (currentUser.isAdminGlobal() && requestDTO.getIdEntidad() != null) {
+            return requestDTO.getIdEntidad();
+        }
+
+        // Otros usuarios usan su entidad
+        if (currentUser.tieneEntidad()) {
+            return currentUser.getIdEntidad();
+        }
+
+        throw new IllegalStateException("No se puede determinar la entidad para el trámite");
+    }
+
+    private Tramite obtenerTramiteConFiltro(Long tramiteId, CustomUserDetails currentUser) {
+        if (currentUser.isAdminGlobal()) {
+            return tramiteRepository.findById(tramiteId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Tramite", "id", tramiteId));
+        } else {
+            return tramiteRepository.findByIdAndCurrentEntity(tramiteId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Tramite", "id", tramiteId));
+        }
+    }
+
+    private void validarTransicionEstado(Tramite.EstadoTramite estadoActual,
+            Tramite.EstadoTramite nuevoEstado) {
+        // Definir transiciones válidas
+        boolean transicionValida = switch (estadoActual) {
+            case RADICADO -> nuevoEstado == Tramite.EstadoTramite.ASIGNADO
+                    || nuevoEstado == Tramite.EstadoTramite.CANCELADO;
+            case ASIGNADO -> nuevoEstado == Tramite.EstadoTramite.EN_REVISION
+                    || nuevoEstado == Tramite.EstadoTramite.CANCELADO;
+            case EN_REVISION -> nuevoEstado == Tramite.EstadoTramite.PENDIENTE_DOCUMENTOS
+                    || nuevoEstado == Tramite.EstadoTramite.EN_ESPERA_CONCEPTO
+                    || nuevoEstado == Tramite.EstadoTramite.APROBADO
+                    || nuevoEstado == Tramite.EstadoTramite.RECHAZADO;
+            case PENDIENTE_DOCUMENTOS -> nuevoEstado == Tramite.EstadoTramite.EN_REVISION
+                    || nuevoEstado == Tramite.EstadoTramite.ARCHIVADO;
+            case EN_ESPERA_CONCEPTO -> nuevoEstado == Tramite.EstadoTramite.CONCEPTO_FAVORABLE
+                    || nuevoEstado == Tramite.EstadoTramite.CONCEPTO_DESFAVORABLE;
+            case CONCEPTO_FAVORABLE -> nuevoEstado == Tramite.EstadoTramite.APROBADO;
+            case CONCEPTO_DESFAVORABLE -> nuevoEstado == Tramite.EstadoTramite.RECHAZADO;
+            default -> false; // Estados finales no pueden cambiar
+        };
+
+        if (!transicionValida) {
+            throw new IllegalStateException(
+                    String.format("Transición no válida: de %s a %s", estadoActual, nuevoEstado));
+        }
+    }
+
+    private TramiteResponseDTO convertToResponseDTO(Tramite tramite) {
+        TramiteResponseDTO dto = modelMapper.map(tramite, TramiteResponseDTO.class);
+
+        // Mapear campos específicos que ModelMapper no puede inferir
+        if (tramite.getEntidad() != null) {
+            dto.setNombreEntidad(tramite.getEntidad().getNombre());
+        }
+        if (tramite.getSolicitante() != null) {
+            dto.setNombreSolicitante(tramite.getSolicitante().getNombreCompleto());
+        }
+        if (tramite.getRevisorAsignado() != null) {
+            dto.setNombreRevisor(tramite.getRevisorAsignado().getNombreCompleto());
+        }
+        if (tramite.getTipoTramite() != null) {
+            dto.setNombreTipoTramite(tramite.getTipoTramite().getNombre());
+        }
+
+        return dto;
+    }
+
+    private TramitePublicoDTO convertToPublicDTO(Tramite tramite) {
+        TramitePublicoDTO dto = new TramitePublicoDTO();
+        dto.setNumeroRadicacion(tramite.getNumeroRadicacion());
+        dto.setFechaRadicacion(tramite.getFechaRadicacion());
+        dto.setObjetoTramite(tramite.getObjetoTramite());
+        dto.setEstadoActual(tramite.getEstadoActual().name());
+        dto.setDescripcionEstado(tramite.getEstadoActual().getDescripcion());
+        dto.setFechaUltimoCambio(tramite.getFechaUltimoCambioEstado());
+        dto.setNombreEntidad(tramite.getEntidad().getNombre());
+
+        // Solo información pública, sin datos sensibles
+        return dto;
     }
 }
