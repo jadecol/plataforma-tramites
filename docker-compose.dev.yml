@@ -1,0 +1,80 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres-dev:
+    image: postgres:15-alpine
+    container_name: tramites-postgres-dev
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: plataforma_tramites_dev
+      POSTGRES_USER: tramites_user
+      POSTGRES_PASSWORD: tramites_dev_2024
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8 --lc-collate=es_CO.UTF-8 --lc-ctype=es_CO.UTF-8"
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data
+      - ./sql/init:/docker-entrypoint-initdb.d
+    networks:
+      - tramites-network
+
+  # Redis for Caching
+  redis-dev:
+    image: redis:7-alpine
+    container_name: tramites-redis-dev
+    restart: unless-stopped
+    ports:
+      - "6380:6379"
+    command: redis-server --appendonly yes --requirepass "redis_dev_2024"
+    volumes:
+      - redis_dev_data:/data
+    networks:
+      - tramites-network
+
+  # LocalStack for AWS Services (S3, SES, etc.)
+  localstack:
+    container_name: tramites-localstack
+    image: localstack/localstack:2.3
+    ports:
+      - "4566:4566"
+      - "4510-4559:4510-4559"
+    environment:
+      - SERVICES=s3,ses,sns,secretsmanager
+      - DEBUG=1
+      - DATA_DIR=/tmp/localstack/data
+      - HOST_TMP_FOLDER=${TMPDIR:-/tmp}/localstack
+      - DOCKER_HOST=unix:///var/run/docker.sock
+    volumes:
+      - "${TMPDIR:-/tmp}/localstack:/tmp/localstack"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+      - "./localstack-init:/etc/localstack/init/ready.d"
+    networks:
+      - tramites-network
+
+  # pgAdmin for Database Management
+  pgadmin:
+    image: dpage/pgadmin4:7
+    container_name: tramites-pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@tramites.com
+      PGADMIN_DEFAULT_PASSWORD: admin2024
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    depends_on:
+      - postgres-dev
+    networks:
+      - tramites-network
+
+volumes:
+  postgres_dev_data:
+  redis_dev_data:
+  pgadmin_data:
+
+networks:
+  tramites-network:
+    driver: bridge
