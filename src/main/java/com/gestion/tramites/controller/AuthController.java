@@ -23,13 +23,15 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<JwtResponse> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<JwtResponse> authenticateUser(
+            @Valid @RequestBody LoginRequest loginRequest) {
         JwtResponse jwtResponse = authService.authenticateUser(loginRequest);
         return ResponseEntity.ok(jwtResponse);
     }
 
     @PostMapping("/register")
-    public ResponseEntity<String> registerUser(@Valid @RequestBody RegisterRequest registerRequest) {
+    public ResponseEntity<String> registerUser(
+            @Valid @RequestBody RegisterRequest registerRequest) {
         authService.registerUser(registerRequest);
         return new ResponseEntity<>("User registered successfully", HttpStatus.CREATED);
     }

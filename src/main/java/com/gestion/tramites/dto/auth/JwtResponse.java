@@ -2,16 +2,16 @@ package com.gestion.tramites.dto.auth;
 
 public class JwtResponse {
     private String token;
-    private String tipo = "Bearer";
-    private Long id;
+    private String type = "Bearer";
+    private Long idUsuario;
     private String correoElectronico;
     private String rol;
     private String nombreCompleto;
 
-    // Este es el constructor que tu AuthService necesita
-    public JwtResponse(String token, Long id, String correoElectronico, String rol, String nombreCompleto) {
+    public JwtResponse(String token, Long idUsuario, String correoElectronico, String rol,
+            String nombreCompleto) {
         this.token = token;
-        this.id = id;
+        this.idUsuario = idUsuario;
         this.correoElectronico = correoElectronico;
         this.rol = rol;
         this.nombreCompleto = nombreCompleto;
@@ -26,20 +26,20 @@ public class JwtResponse {
         this.token = token;
     }
 
-    public String getTipo() {
-        return tipo;
+    public String getType() {
+        return type;
     }
 
-    public void setTipo(String tipo) {
-        this.tipo = tipo;
+    public void setType(String type) {
+        this.type = type;
     }
 
-    public Long getId() {
-        return id;
+    public Long getIdUsuario() {
+        return idUsuario;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setIdUsuario(Long idUsuario) {
+        this.idUsuario = idUsuario;
     }
 
     public String getCorreoElectronico() {

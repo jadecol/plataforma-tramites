@@ -33,10 +33,10 @@ public class Entidad {
     private boolean activo = true; // Por defecto, se crea como activa
 
     // Constructores
-    public Entidad() {
-    }
+    public Entidad() {}
 
-    public Entidad(String nombre, String nit, String direccion, String telefono, String email, String sitioWeb) {
+    public Entidad(String nombre, String nit, String direccion, String telefono, String email,
+            String sitioWeb) {
         this.nombre = nombre;
         this.nit = nit;
         this.direccion = direccion;
@@ -114,8 +114,10 @@ public class Entidad {
     // Métodos equals y hashCode (importante para colecciones y JPA)
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
         Entidad entidad = (Entidad) o;
         return Objects.equals(id, entidad.id); // Solo compara por ID si es persistente
     }
@@ -127,15 +129,9 @@ public class Entidad {
 
     @Override
     public String toString() {
-        return "Entidad{" +
-               "id=" + id +
-               ", nombre='" + nombre + '\'' +
-               ", nit='" + nit + '\'' +
-               ", direccion='" + direccion + '\'' +
-               ", telefono='" + telefono + '\'' +
-               ", email='" + email + '\'' +
-               ", sitioWeb='" + sitioWeb + '\'' +
-               ", activo=" + activo +
-               '}';
+        return "Entidad{" + "id=" + id + ", nombre='" + nombre + '\'' + ", nit='" + nit + '\''
+                + ", direccion='" + direccion + '\'' + ", telefono='" + telefono + '\''
+                + ", email='" + email + '\'' + ", sitioWeb='" + sitioWeb + '\'' + ", activo="
+                + activo + '}';
     }
 }

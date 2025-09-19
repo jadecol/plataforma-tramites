@@ -7,17 +7,19 @@ import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.io.Decoders; // Importar Decoders para decodificar la clave Base64
-import io.jsonwebtoken.security.Keys; // Importar Keys para generar claves seguras (si usas la generación en caliente)
+import io.jsonwebtoken.security.Keys; // Importar Keys para generar claves seguras (si usas la
+                                      // generación en caliente)
 import io.jsonwebtoken.security.SignatureException; // Importar SignatureException
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.Authentication; // <-- IMPORTANTE: Añadir este import para el nuevo generateToken
+import org.springframework.security.core.Authentication; // <-- IMPORTANTE: Añadir este import para
+                                                         // el nuevo generateToken
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
-import java.security.Key;
+import javax.crypto.SecretKey;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -35,9 +37,10 @@ public class JwtUtil {
     private long expiration; // En milisegundos
 
     // 1. Obtiene la clave de firma (Key) a partir de la cadena secreta
-    private Key getSigningKey() {
+    private SecretKey getSigningKey() {
         // Tu secreto ya está en Base64, así que lo decodificamos directamente.
-        // Asegúrate de que el secreto en application.properties sea una cadena BASE64 válida y lo suficientemente larga.
+        // Asegúrate de que el secreto en application.properties sea una cadena BASE64 válida y lo
+        // suficientemente larga.
         byte[] keyBytes = Decoders.BASE64.decode(secret);
         return Keys.hmacShaKeyFor(keyBytes);
     }
@@ -50,27 +53,31 @@ public class JwtUtil {
         // Puedes añadir claims adicionales si los necesitas
         Map<String, Object> claims = new HashMap<>();
 
-        // Si tu UserDetails implementa una interfaz personalizada o tiene métodos para obtener el ID y el Rol,
+        // Si tu UserDetails implementa una interfaz personalizada o tiene métodos para obtener el
+        // ID y el Rol,
         // puedes agregarlos aquí. Asegúrate de que tu CustomUserDetailsService devuelva esos datos.
         // Por ejemplo, si tienes una clase CustomUserDetails con getId() y getRol():
         // if (userPrincipal instanceof CustomUserDetails) {
-        //     CustomUserDetails customUser = (CustomUserDetails) userPrincipal;
-        //     claims.put("id", customUser.getId());
-        //     claims.put("rol", customUser.getRol());
+        // CustomUserDetails customUser = (CustomUserDetails) userPrincipal;
+        // claims.put("id", customUser.getId());
+        // claims.put("rol", customUser.getRol());
         // } else {
-        //     // Si no usas CustomUserDetails, puedes intentar obtener el rol de las autoridades si lo necesitas en el token
-        //     if (!userPrincipal.getAuthorities().isEmpty()) {
-        //         claims.put("rol", userPrincipal.getAuthorities().iterator().next().getAuthority().replace("ROLE_", ""));
-        //     }
+        // // Si no usas CustomUserDetails, puedes intentar obtener el rol de las autoridades si lo
+        // necesitas en el token
+        // if (!userPrincipal.getAuthorities().isEmpty()) {
+        // claims.put("rol",
+        // userPrincipal.getAuthorities().iterator().next().getAuthority().replace("ROLE_", ""));
+        // }
         // }
 
 
-        return Jwts.builder()
-                .setClaims(claims) // Añade los claims
+        return Jwts.builder().setClaims(claims) // Añade los claims
                 .setSubject(username) // El "sujeto" del token es el nombre de usuario (correo)
                 .setIssuedAt(new Date(System.currentTimeMillis())) // Fecha de emisión
-                .setExpiration(new Date(System.currentTimeMillis() + expiration)) // Fecha de expiración
-                .signWith(getSigningKey(), SignatureAlgorithm.HS512) // Firma el token con la clave y algoritmo
+                .setExpiration(new Date(System.currentTimeMillis() + expiration)) // Fecha de
+                                                                                  // expiración
+                .signWith(getSigningKey(), SignatureAlgorithm.HS512) // Firma el token con la clave
+                                                                     // y algoritmo
                 .compact(); // Construye el token JWT
     }
 
@@ -99,11 +106,8 @@ public class JwtUtil {
 
     // 7. Extrae todos los claims del token
     private Claims extractAllClaims(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(getSigningKey())
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
+        return Jwts.parser().verifyWith(getSigningKey()).build().parseSignedClaims(token)
+                .getPayload();
     }
 
     // 8. Verifica si el token ha expirado
@@ -114,7 +118,7 @@ public class JwtUtil {
     // NUEVO MÉTODO: 9. Valida el token y captura las excepciones de JWT (útil para el filtro)
     public boolean validateToken(String authToken) {
         try {
-            Jwts.parserBuilder().setSigningKey(getSigningKey()).build().parseClaimsJws(authToken);
+            Jwts.parser().verifyWith(getSigningKey()).build().parseSignedClaims(authToken);
             return true;
         } catch (MalformedJwtException e) {
             logger.error("Token JWT inválido: {}", e.getMessage());
@@ -124,7 +128,8 @@ public class JwtUtil {
             logger.error("Token JWT no soportado: {}", e.getMessage());
         } catch (IllegalArgumentException e) {
             logger.error("Cadena JWT vacía: {}", e.getMessage());
-        } catch (SignatureException e) { // <-- Importante: io.jsonwebtoken.security.SignatureException
+        } catch (SignatureException e) { // <-- Importante:
+                                         // io.jsonwebtoken.security.SignatureException
             logger.error("Firma JWT inválida: {}", e.getMessage());
         }
         return false;

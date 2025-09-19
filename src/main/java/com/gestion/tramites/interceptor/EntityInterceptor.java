@@ -4,13 +4,19 @@ import com.gestion.tramites.context.EntityContext;
 import com.gestion.tramites.service.CustomUserDetails;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
+import org.hibernate.Session;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
+import jakarta.persistence.EntityManager;
 
 @Component
+@RequiredArgsConstructor
 public class EntityInterceptor implements HandlerInterceptor {
+
+    private final EntityManager entityManager;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response,
@@ -23,10 +29,13 @@ public class EntityInterceptor implements HandlerInterceptor {
                 && authentication.getPrincipal() instanceof CustomUserDetails) {
 
             CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+            Long entityId = userDetails.getIdEntidad();
 
-            // Establecer el ID de entidad en el contexto
-            if (userDetails.getIdEntidad() != null) {
-                EntityContext.setCurrentEntityId(userDetails.getIdEntidad());
+            // Establecer el ID de entidad en el contexto y activar el filtro de Hibernate
+            if (entityId != null) {
+                EntityContext.setCurrentEntityId(entityId);
+                Session session = entityManager.unwrap(Session.class);
+                session.enableFilter("entityFilter").setParameter("entityId", entityId);
             }
         }
 

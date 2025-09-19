@@ -1,4 +1,4 @@
-package com.gestion.tramites.config; // O tu paquete de seguridad
+package com.gestion.tramites.config;
 
 import com.gestion.tramites.service.CustomUserDetailsService;
 import com.gestion.tramites.security.filter.JwtAuthenticationFilter;
@@ -8,7 +8,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity; // <-- ¡ESTA ES CLAVE!
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -18,14 +18,15 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
-@EnableWebSecurity // Habilita la seguridad web de Spring
-@EnableMethodSecurity(prePostEnabled = true) // <-- ¡ASEGÚRATE DE QUE ESTÉ ASÍ! Habilita @PreAuthorize y @PostAuthorize
-public class SecurityConfig { // O el nombre de tu clase
+@EnableWebSecurity
+@EnableMethodSecurity(prePostEnabled = true)
+public class SecurityConfig {
 
     private final CustomUserDetailsService customUserDetailsService;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
-    public SecurityConfig(CustomUserDetailsService customUserDetailsService, JwtAuthenticationFilter jwtAuthenticationFilter) {
+    public SecurityConfig(CustomUserDetailsService customUserDetailsService,
+            JwtAuthenticationFilter jwtAuthenticationFilter) {
         this.customUserDetailsService = customUserDetailsService;
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
     }
@@ -44,23 +45,27 @@ public class SecurityConfig { // O el nombre de tu clase
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config)
+            throws Exception {
         return config.getAuthenticationManager();
     }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-            .csrf(csrf -> csrf.disable()) // Deshabilita CSRF para APIs REST
-            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Sesiones sin estado para JWT
-            .authorizeHttpRequests(authorize -> authorize
-                .requestMatchers("/api/v1/auth/**").permitAll() // Permite acceso público a la ruta de autenticación
-                // .requestMatchers("/api/v1/entidades/**").hasAnyRole("ADMIN_GLOBAL", "ADMIN_ENTIDAD") // Esto es redundante si @PreAuthorize funciona
-                // .requestMatchers("/api/v1/usuarios/**").hasAnyRole("ADMIN_GLOBAL", "ADMIN_ENTIDAD") // Esto es redundante si @PreAuthorize funciona
-                .anyRequest().authenticated() // Todas las demás solicitudes requieren autenticación
-            )
-            .authenticationProvider(authenticationProvider()) // Define el proveedor de autenticación
-            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class); // Añade el filtro JWT
+        http.csrf(csrf -> csrf.disable())
+                .sessionManagement(
+                        session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(
+                        authorize -> authorize.requestMatchers("/api/v1/auth/**").permitAll() // Rutas
+                                                                                              // de
+                                                                                              // autenticación
+                                .requestMatchers("/api/public/**").permitAll() // Rutas públicas
+                                .requestMatchers("/api/test/**").permitAll() // AGREGADO: Endpoint
+                                                                             // de test
+                                .requestMatchers("/actuator/health").permitAll() // Health check
+                                .anyRequest().authenticated())
+                .authenticationProvider(authenticationProvider()).addFilterBefore(
+                        jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

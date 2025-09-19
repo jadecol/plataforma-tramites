@@ -6,14 +6,15 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import jakarta.persistence.FetchType;
 
+/**
+ * Representa un usuario en la plataforma. Puede ser un administrador, un gestor o un cliente.
+ * Hereda la propiedad 'entidad' y el filtro multi-tenant de BaseTenantEntity.
+ */
 @Entity
 @Table(name = "usuarios")
-public class Usuario {
+public class Usuario extends BaseTenantEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -55,9 +56,7 @@ public class Usuario {
     @Column(name = "experiencia_acreditada")
     private String experienciaAcreditada;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_entidad", nullable = true)
-    private Entidad entidad;
+    // El campo 'entidad' y sus getters/setters son heredados de BaseTenantEntity
 
     // Getters y Setters
     public Long getIdUsuario() {
@@ -162,13 +161,5 @@ public class Usuario {
 
     public void setExperienciaAcreditada(String experienciaAcreditada) {
         this.experienciaAcreditada = experienciaAcreditada;
-    }
-
-    public Entidad getEntidad() {
-        return entidad;
-    }
-
-    public void setEntidad(Entidad entidad) {
-        this.entidad = entidad;
     }
 }

@@ -1,4 +1,3 @@
-// ============ ARCHIVO 1: TramiteService.java ============
 package com.gestion.tramites.service;
 
 import com.gestion.tramites.context.EntityContext;
@@ -249,7 +248,8 @@ public class TramiteService {
             return tramiteRepository.findById(tramiteId)
                     .orElseThrow(() -> new ResourceNotFoundException("Tramite", "id", tramiteId));
         } else {
-            return tramiteRepository.findByIdAndCurrentEntity(tramiteId)
+            // CORREGIDO: usar findById en lugar del método inexistente
+            return tramiteRepository.findById(tramiteId)
                     .orElseThrow(() -> new ResourceNotFoundException("Tramite", "id", tramiteId));
         }
     }

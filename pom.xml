@@ -36,10 +36,23 @@
 	</scm>
 	<properties>
 		<java.version>21</java.version>
-        <lombok.version>1.18.30</lombok.version>
+        <lombok.version>1.18.42</lombok.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 	</properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>testcontainers-bom</artifactId>
+                <version>1.19.8</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -48,6 +61,15 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.flywaydb</groupId>
+			<artifactId>flyway-core</artifactId>
+		</dependency>
+		<!-- Driver de Flyway específico para PostgreSQL -->
+		<dependency>
+			<groupId>org.flywaydb</groupId>
+			<artifactId>flyway-database-postgresql</artifactId>
 		</dependency>
 
 		<dependency>
@@ -67,6 +89,18 @@
 			<scope>test</scope>
 		</dependency>
 
+        <!-- DEPENDENCIAS DE TESTCONTAINERS -->
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>postgresql</artifactId>
+            <scope>test</scope>
+        </dependency>
+
 		<dependency>
     		<groupId>org.springframework.boot</groupId>
     		<artifactId>spring-boot-starter-validation</artifactId>
@@ -80,25 +114,25 @@
 		<dependency>
     		<groupId>io.jsonwebtoken</groupId>
    			<artifactId>jjwt-api</artifactId>
-    		<version>0.11.5</version>
+    		<version>0.13.0</version>
 		</dependency>
 		<dependency>
     		<groupId>io.jsonwebtoken</groupId>
     		<artifactId>jjwt-impl</artifactId>
-    		<version>0.11.5</version>
+    		<version>0.13.0</version>
     		<scope>runtime</scope>
 		</dependency>
 		<dependency>
     		<groupId>io.jsonwebtoken</groupId>
     		<artifactId>jjwt-jackson</artifactId>
-    		<version>0.11.5</version>
+    		<version>0.13.0</version>
     		<scope>runtime</scope>
 		</dependency>
 
         <dependency>
             <groupId>org.modelmapper</groupId>
             <artifactId>modelmapper</artifactId>
-            <version>3.2.0</version>
+            <version>3.2.4</version>
         </dependency>
 
 	</dependencies>
