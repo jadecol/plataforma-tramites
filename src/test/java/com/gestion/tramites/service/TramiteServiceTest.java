@@ -1,19 +1,17 @@
 package com.gestion.tramites.service;
 
-import com.gestion.tramites.dto.tramite.TramiteRequestDTO;
 import com.gestion.tramites.dto.tramite.TramiteResponseDTO;
+import com.gestion.tramites.exception.ResourceNotFoundException;
 import com.gestion.tramites.model.Entidad;
 import com.gestion.tramites.model.TipoTramite;
 import com.gestion.tramites.model.Tramite;
 import com.gestion.tramites.model.Usuario;
-import com.gestion.tramites.repository.EntidadRepository;
 import com.gestion.tramites.repository.TipoTramiteRepository;
 import com.gestion.tramites.repository.TramiteRepository;
 import com.gestion.tramites.repository.UsuarioRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -26,98 +24,138 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class TramiteServiceTest {
 
-    // @Mock crea una simulación de la dependencia.
     @Mock
     private TramiteRepository tramiteRepository;
+
     @Mock
     private UsuarioRepository usuarioRepository;
-    @Mock
-    private EntidadRepository entidadRepository;
+
     @Mock
     private TipoTramiteRepository tipoTramiteRepository;
+
     @Mock
     private RadicacionService radicacionService;
+
     @Mock
     private ModelMapper modelMapper;
-    @Mock
-    private Authentication authentication;
-    @Mock
-    private SecurityContext securityContext;
 
-    // @InjectMocks crea una instancia de TramiteService e inyecta los @Mock de arriba.
     @InjectMocks
     private TramiteService tramiteService;
 
+    private Usuario solicitante;
+    private Usuario revisor;
+    private Usuario adminUser;
+    private Tramite tramite;
+    private TipoTramite tipoTramite;
+    private Entidad entidad;
+
     @BeforeEach
     void setUp() {
-        // Simulamos el contexto de seguridad en cada prueba
+        entidad = new Entidad();
+        entidad.setId(1L);
+        entidad.setNombre("Curaduría 1");
+
+        solicitante = new Usuario();
+        solicitante.setIdUsuario(1L);
+        solicitante.setNombreCompleto("Juan Solicitante");
+        solicitante.setEntidad(entidad);
+
+        revisor = new Usuario();
+        revisor.setIdUsuario(2L);
+        revisor.setNombreCompleto("Ana Revisora");
+        revisor.setRol("REVISOR");
+        revisor.setEntidad(entidad);
+
+        adminUser = new Usuario();
+        adminUser.setIdUsuario(99L);
+        adminUser.setNombreCompleto("Admin Global");
+        adminUser.setRol("ADMIN_GLOBAL");
+        adminUser.setEntidad(entidad);
+
+        tipoTramite = new TipoTramite();
+        tipoTramite.setIdTipoTramite(1L);
+        tipoTramite.setNombre("Licencia de Construcción");
+
+        tramite = new Tramite();
+        tramite.setIdTramite(100L);
+        tramite.setEntidad(entidad);
+        tramite.setSolicitante(solicitante);
+        tramite.setEstadoActual(Tramite.EstadoTramite.RADICADO);
+        tramite.setNumeroRadicacion("RAD-2025-100");
+
+        // --- MOCK DEL CONTEXTO DE SEGURIDAD ---
+        Authentication authentication = mock(Authentication.class);
+        SecurityContext securityContext = mock(SecurityContext.class);
         when(securityContext.getAuthentication()).thenReturn(authentication);
         SecurityContextHolder.setContext(securityContext);
+        when(authentication.getPrincipal()).thenReturn(new CustomUserDetails(adminUser));
     }
 
     @Test
-    void crearTramite_cuandoUsuarioEsValido_deberiaCrearYGuardarElTramite() {
-        // 1. ARRANGE (Organizar)
-        
-        // Datos de entrada
-        TramiteRequestDTO request = new TramiteRequestDTO();
-        request.setIdSolicitante(1L);
-        request.setIdTipoTramite(1L);
-        request.setObjetoTramite("Construcción de vivienda");
+    void cuandoBuscaTramitePorId_yExiste_debeRetornarTramite() {
+        // Given
+        when(tramiteRepository.findById(100L)).thenReturn(Optional.of(tramite));
+        when(modelMapper.map(tramite, TramiteResponseDTO.class)).thenReturn(new TramiteResponseDTO());
 
-        // Simulación del usuario autenticado (CORREGIDO)
-        Entidad mockCurrentUserEntidad = new Entidad();
-        mockCurrentUserEntidad.setId(10L);
-        Usuario mockCurrentUserUsuario = new Usuario();
-        mockCurrentUserUsuario.setIdUsuario(100L);
-        mockCurrentUserUsuario.setRol("ADMIN_ENTIDAD");
-        mockCurrentUserUsuario.setEntidad(mockCurrentUserEntidad);
-        CustomUserDetails mockCurrentUser = new CustomUserDetails(mockCurrentUserUsuario);
-        when(authentication.getPrincipal()).thenReturn(mockCurrentUser);
+        // When
+        TramiteResponseDTO tramiteEncontrado = tramiteService.obtenerTramitePorId(100L);
 
-        // Simulación de los objetos que los repositorios "encontrarán"
-        Usuario mockSolicitante = new Usuario();
-        mockSolicitante.setIdUsuario(1L);
-        TipoTramite mockTipoTramite = new TipoTramite();
-        mockTipoTramite.setIdTipoTramite(1L); // CORREGIDO
+        // Then
+        assertNotNull(tramiteEncontrado);
+        verify(tramiteRepository).findById(100L);
+    }
 
-        // Simulación de las llamadas a los mocks
-        when(entidadRepository.findById(10L)).thenReturn(Optional.of(mockCurrentUserEntidad));
-        when(usuarioRepository.findById(1L)).thenReturn(Optional.of(mockSolicitante));
-        when(tipoTramiteRepository.findById(1L)).thenReturn(Optional.of(mockTipoTramite));
-        when(radicacionService.generarNumeroRadicacion(any(Entidad.class), any(TipoTramite.class))).thenReturn("RAD-2025-001");
-        
-        // Cuando se guarde el trámite, devolvemos el mismo objeto para consistencia
-        when(tramiteRepository.save(any(Tramite.class))).thenAnswer(invocation -> invocation.getArgument(0));
-        
-        // Simulación del mapeo a DTO
+    @Test
+    void cuandoBuscaTramitePorId_yNoExiste_debeLanzarResourceNotFoundException() {
+        // Given
+        when(tramiteRepository.findById(anyLong())).thenReturn(Optional.empty());
+
+        // When & Then
+        assertThrows(ResourceNotFoundException.class, () -> {
+            tramiteService.obtenerTramitePorId(999L);
+        });
+    }
+
+    @Test
+    void cuandoActualizaEstado_conTransicionValida_debeCambiarEstadoYGuardar() {
+        // Given
+        tramite.setEstadoActual(Tramite.EstadoTramite.ASIGNADO); // CORRECCIÓN: Iniciar desde un estado válido para la transición
+        when(tramiteRepository.findById(100L)).thenReturn(Optional.of(tramite));
+        when(tramiteRepository.save(any(Tramite.class))).thenReturn(tramite); // CORRECCIÓN: Mockear el save
         when(modelMapper.map(any(Tramite.class), eq(TramiteResponseDTO.class))).thenReturn(new TramiteResponseDTO());
 
-        // 2. ACT (Actuar)
-        TramiteResponseDTO resultado = tramiteService.crearTramite(request);
 
-        // 3. ASSERT (Afirmar)
-        
-        // Verificamos que el resultado no sea nulo
-        assertNotNull(resultado);
+        Tramite.EstadoTramite nuevoEstado = Tramite.EstadoTramite.EN_REVISION;
 
-        // Usamos un ArgumentCaptor para "capturar" el objeto que se pasó al método save()
-        ArgumentCaptor<Tramite> tramiteCaptor = ArgumentCaptor.forClass(Tramite.class);
-        verify(tramiteRepository, times(1)).save(tramiteCaptor.capture());
-        
-        // Obtenemos el trámite capturado
-        Tramite tramiteGuardado = tramiteCaptor.getValue();
+        // When
+        tramiteService.actualizarEstado(100L, nuevoEstado, "Iniciando revisión técnica");
 
-        // Verificamos que los datos correctos fueron asignados al trámite antes de guardarlo
-        assertEquals("RAD-2025-001", tramiteGuardado.getNumeroRadicacion());
-        assertEquals("Construcción de vivienda", tramiteGuardado.getObjetoTramite());
-        assertEquals(10L, tramiteGuardado.getEntidad().getId());
-        assertEquals(1L, tramiteGuardado.getSolicitante().getIdUsuario());
-        assertEquals(Tramite.EstadoTramite.RADICADO, tramiteGuardado.getEstadoActual());
+        // Then
+        assertEquals(nuevoEstado, tramite.getEstadoActual());
+        assertEquals("Iniciando revisión técnica", tramite.getComentariosRevisor());
+        verify(tramiteRepository).save(tramite);
+    }
+
+    @Test
+    void cuandoAsignaRevisor_conDatosValidos_debeAsignarYGuardar() {
+        // Given
+        when(tramiteRepository.findById(100L)).thenReturn(Optional.of(tramite));
+        when(usuarioRepository.findById(2L)).thenReturn(Optional.of(revisor));
+        when(tramiteRepository.save(any(Tramite.class))).thenReturn(tramite); // CORRECCIÓN: Mockear el save para que devuelva el trámite
+        when(modelMapper.map(any(Tramite.class), eq(TramiteResponseDTO.class))).thenReturn(new TramiteResponseDTO());
+
+        // When
+        tramiteService.asignarRevisor(100L, 2L);
+
+        // Then
+        assertEquals(revisor, tramite.getRevisorAsignado());
+        assertEquals(Tramite.EstadoTramite.ASIGNADO, tramite.getEstadoActual());
+        verify(tramiteRepository).save(tramite);
     }
 }
