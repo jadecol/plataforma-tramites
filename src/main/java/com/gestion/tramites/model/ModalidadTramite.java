@@ -9,14 +9,16 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "modalidades_tramite")
-public class ModalidadTramite {
+public class ModalidadTramite extends BaseTenantEntity { // Added extends BaseTenantEntity
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idModalidadTramite;
 
     @Column(name = "nombre", nullable = false, unique = true)
-    private String nombre; // <-- ¡Aquí está! La propiedad es 'nombre'
+    private String nombre;
+
+    // Removed Entidad field and its getters/setters as they are now in BaseTenantEntity
 
     // Getters y Setters
     public Long getIdModalidadTramite() {
@@ -27,7 +29,7 @@ public class ModalidadTramite {
         this.idModalidadTramite = idModalidadTramite;
     }
 
-    public String getNombre() { // <-- Su getter es getNombre()
+    public String getNombre() {
         return nombre;
     }
 

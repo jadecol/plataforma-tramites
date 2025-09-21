@@ -200,6 +200,52 @@ public class TramiteService {
         return convertToResponseDTO(tramiteActualizado);
     }
 
+    /**
+     * Actualizar un trámite existente.
+     */
+    public TramiteResponseDTO actualizarTramite(Long id, TramiteRequestDTO requestDTO) {
+        Tramite existingTramite = tramiteRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Tramite", "id", id));
+
+        // Actualizar campos desde requestDTO
+        existingTramite.setObjetoTramite(requestDTO.getObjetoTramite());
+        existingTramite.setDescripcionProyecto(requestDTO.getDescripcionProyecto());
+        existingTramite.setDireccionInmueble(requestDTO.getDireccionInmueble());
+        // Otros campos que pueden ser actualizados
+
+        // Actualizar solicitante si se proporciona
+        if (requestDTO.getIdSolicitante() != null) {
+            Usuario solicitante = usuarioRepository.findById(requestDTO.getIdSolicitante())
+                    .orElseThrow(() -> new ResourceNotFoundException("Usuario", "id", requestDTO.getIdSolicitante()));
+            existingTramite.setSolicitante(solicitante);
+        }
+
+        // Actualizar tipoTramite si se proporciona
+        if (requestDTO.getIdTipoTramite() != null) {
+            TipoTramite tipoTramite = tipoTramiteRepository.findById(requestDTO.getIdTipoTramite())
+                    .orElseThrow(() -> new ResourceNotFoundException("TipoTramite", "id", requestDTO.getIdTipoTramite()));
+            existingTramite.setTipoTramite(tipoTramite);
+        }
+
+        // Actualizar modalidadTramite si se proporciona
+        // if (requestDTO.getIdModalidadTramite() != null) { ... }
+
+        // Actualizar subtipoTramite si se proporciona
+        // if (requestDTO.getIdSubtipoTramite() != null) { ... }
+
+        Tramite updatedTramite = tramiteRepository.save(existingTramite);
+        return convertToResponseDTO(updatedTramite);
+    }
+
+    /**
+     * Eliminar un trámite por su ID.
+     */
+    public void eliminarTramite(Long id) {
+        Tramite tramite = tramiteRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Tramite", "id", id));
+        tramiteRepository.delete(tramite);
+    }
+
     // ============ API PÚBLICA (sin autenticación) ============
 
     /**
