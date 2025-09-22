@@ -46,7 +46,7 @@ public class UsuarioService {
         dto.setNumeroDocumento(usuario.getNumeroDocumento());
         dto.setCorreoElectronico(usuario.getCorreoElectronico());
         dto.setTelefono(usuario.getTelefono());
-        dto.setRol(usuario.getRol());
+        dto.setRol(usuario.getRol().name());
         // contrasenaHash no se incluye por seguridad
         dto.setFechaCreacion(usuario.getFechaCreacion());
         dto.setFechaUltimaSesion(usuario.getFechaUltimaSesion());
@@ -79,7 +79,7 @@ public class UsuarioService {
         usuario.setNumeroDocumento(usuarioDto.getNumeroDocumento());
         usuario.setCorreoElectronico(usuarioDto.getCorreoElectronico());
         usuario.setTelefono(usuarioDto.getTelefono());
-        usuario.setRol(usuarioDto.getRol());
+        usuario.setRol(Usuario.Rol.valueOf(usuarioDto.getRol()));
         // Contraseña se maneja por separado en crear/actualizar
         usuario.setEstaActivo(usuarioDto.getEstaActivo());
         usuario.setMatriculaProfesional(usuarioDto.getMatriculaProfesional());
@@ -149,7 +149,7 @@ public class UsuarioService {
             usuarioExistente.setNumeroDocumento(usuarioDto.getNumeroDocumento());
             usuarioExistente.setCorreoElectronico(usuarioDto.getCorreoElectronico());
             usuarioExistente.setTelefono(usuarioDto.getTelefono());
-            usuarioExistente.setRol(usuarioDto.getRol()); // Actualiza el rol
+            usuarioExistente.setRol(Usuario.Rol.valueOf(usuarioDto.getRol())); // Actualiza el rol
 
             // Actualizar contraseña solo si se proporciona una nueva
             if (usuarioDto.getContrasenaHash() != null

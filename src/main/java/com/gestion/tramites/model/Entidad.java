@@ -17,6 +17,9 @@ public class Entidad {
     @Column(nullable = false, unique = true)
     private String nit; // Número de Identificación Tributaria, debe ser único
 
+    @Column(nullable = true, length = 5)
+    private String codigoDane; // Código DANE del municipio (5 dígitos)
+
     @Column(nullable = true) // Puede que al inicio no tengan dirección o sea opcional
     private String direccion;
 
@@ -69,6 +72,19 @@ public class Entidad {
 
     public void setNit(String nit) {
         this.nit = nit;
+    }
+
+    public String getCodigoDane() {
+        return codigoDane;
+    }
+
+    public void setCodigoDane(String codigoDane) {
+        this.codigoDane = codigoDane;
+    }
+
+    // Alias para compatibility con tests
+    public void setCodigo(String codigo) {
+        this.codigoDane = codigo;
     }
 
     public String getDireccion() {

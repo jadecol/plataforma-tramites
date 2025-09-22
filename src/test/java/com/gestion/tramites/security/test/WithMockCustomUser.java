@@ -11,5 +11,6 @@ public @interface WithMockCustomUser {
     String username() default "testuser";
     String[] roles() default {"USER"};
     long entityId() default 1L; // ID de la entidad para el usuario mock
+    long entidadId() default 1L; // Alias para entityId - compatibilidad
     long userId() default 1L; // ID del usuario mock
 }

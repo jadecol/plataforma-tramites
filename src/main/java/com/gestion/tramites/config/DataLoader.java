@@ -43,7 +43,7 @@ public class DataLoader implements CommandLineRunner {
             adminGlobal.setTelefono("3001234567");
             adminGlobal.setEstaActivo(true);
             adminGlobal.setFechaCreacion(LocalDateTime.now());
-            adminGlobal.setRol("ADMIN_GLOBAL");
+            adminGlobal.setRol(Usuario.Rol.ADMIN_GLOBAL);
             // Para el ADMIN_GLOBAL, la entidad es nula porque no pertenece a una curaduría
             // específica
             adminGlobal.setEntidad(null); // <-- Asegúrate de establecer esto explícitamente a null
@@ -83,7 +83,7 @@ public class DataLoader implements CommandLineRunner {
                     adminEntidad.setTelefono("3007654321");
                     adminEntidad.setEstaActivo(true);
                     adminEntidad.setFechaCreacion(LocalDateTime.now());
-                    adminEntidad.setRol("ADMIN_ENTIDAD"); // Asignar el rol
+                    adminEntidad.setRol(Usuario.Rol.ADMIN_ENTIDAD); // Asignar el rol
                     adminEntidad.setEntidad(entidadPrueba); // ¡IMPORTANTE! Vincula al ADMIN_ENTIDAD
                                                             // con la entidad
 

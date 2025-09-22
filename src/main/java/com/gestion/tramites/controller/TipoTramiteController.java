@@ -1,8 +1,12 @@
 package com.gestion.tramites.controller;
 
-import com.gestion.tramites.model.TipoTramite; // ¡Debe ser TipoTramite!
-import com.gestion.tramites.service.TipoTramiteService; // ¡Debe ser TipoTramiteService!
-
+import com.gestion.tramites.model.TipoTramite;
+import com.gestion.tramites.service.TipoTramiteService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,7 +15,9 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/v1/tipos") // ¡Esta es la ruta para tipos!
+@RequestMapping("/api/v1/tipos")
+@Tag(name = "Tipos de Trámite", description = "Gestión de tipos de trámites disponibles")
+@SecurityRequirement(name = "Bearer Authentication")
 public class TipoTramiteController {
 
     @Autowired

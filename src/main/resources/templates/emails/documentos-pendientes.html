@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Documentos Pendientes</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f9fa;
+            color: #333;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 300;
+        }
+        .content {
+            padding: 30px;
+        }
+        .mensaje-principal {
+            background-color: #fff3cd;
+            padding: 25px;
+            border-radius: 8px;
+            margin: 20px 0;
+            text-align: center;
+            border-left: 4px solid #f39c12;
+        }
+        .mensaje-principal h2 {
+            color: #856404;
+            margin-top: 0;
+            font-size: 22px;
+        }
+        .mensaje-principal .accion {
+            background-color: #856404;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            display: inline-block;
+            font-weight: bold;
+            font-size: 16px;
+            margin: 10px 0;
+        }
+        .tramite-info {
+            background-color: #f8f9fa;
+            border-left: 4px solid #f39c12;
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .tramite-info h3 {
+            margin-top: 0;
+            color: #f39c12;
+            font-size: 18px;
+        }
+        .info-row {
+            margin: 12px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px dotted #dee2e6;
+        }
+        .info-row:last-child {
+            border-bottom: none;
+        }
+        .info-label {
+            font-weight: 600;
+            color: #555;
+            min-width: 140px;
+        }
+        .info-value {
+            color: #333;
+            flex: 1;
+            text-align: right;
+            font-weight: 500;
+        }
+        .radicacion-numero {
+            background-color: #fff3cd;
+            color: #856404;
+            font-family: 'Courier New', monospace;
+            font-size: 18px;
+            font-weight: bold;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            margin: 20px 0;
+            border: 2px solid #f39c12;
+        }
+        .documentos-faltantes {
+            background-color: #ffeaa7;
+            border-left: 4px solid #fdcb6e;
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .documentos-faltantes h4 {
+            color: #856404;
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+        .documentos-faltantes p {
+            margin: 0;
+            color: #795548;
+            line-height: 1.8;
+        }
+        .urgencia {
+            background-color: #ffebee;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 25px 0;
+            border-left: 4px solid #f44336;
+            text-align: center;
+        }
+        .urgencia h3 {
+            color: #c62828;
+            margin-top: 0;
+            font-size: 18px;
+        }
+        .urgencia .tiempo {
+            background-color: #c62828;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            display: inline-block;
+            font-weight: bold;
+            font-size: 14px;
+            margin: 10px 0;
+        }
+        .instrucciones {
+            background-color: #e3f2fd;
+            padding: 25px;
+            border-radius: 8px;
+            margin: 25px 0;
+            border-left: 4px solid #2196f3;
+        }
+        .instrucciones h3 {
+            color: #1976d2;
+            margin-top: 0;
+            font-size: 18px;
+        }
+        .instrucciones ol {
+            margin: 15px 0;
+            padding-left: 25px;
+        }
+        .instrucciones li {
+            margin: 10px 0;
+            color: #333;
+            line-height: 1.6;
+        }
+        .action-button {
+            display: inline-block;
+            background-color: #f39c12;
+            color: white;
+            padding: 15px 30px;
+            text-decoration: none;
+            border-radius: 8px;
+            margin: 25px 0;
+            font-weight: 600;
+            text-align: center;
+            font-size: 16px;
+        }
+        .action-button:hover {
+            background-color: #e67e22;
+        }
+        .footer {
+            background-color: #f8f9fa;
+            padding: 25px;
+            text-align: center;
+            font-size: 12px;
+            color: #6c757d;
+            border-top: 1px solid #dee2e6;
+        }
+        .footer p {
+            margin: 5px 0;
+        }
+        .footer a {
+            color: #f39c12;
+            text-decoration: none;
+        }
+        @media only screen and (max-width: 600px) {
+            .container {
+                width: 100%;
+                margin: 0;
+            }
+            .content {
+                padding: 20px;
+            }
+            .info-row {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .info-value {
+                text-align: left;
+                margin-top: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📋 Documentos Requeridos</h1>
+            <p th:text="${nombreEntidad}"></p>
+        </div>
+
+        <div class="content">
+            <div class="mensaje-principal">
+                <h2>Documentos Pendientes</h2>
+                <p>Estimado/a <strong th:text="${nombreSolicitante}"></strong>,</p>
+                <div class="accion">ACCIÓN REQUERIDA</div>
+                <p>Para continuar con el proceso de su trámite, necesitamos que aporte la siguiente documentación:</p>
+            </div>
+
+            <div class="radicacion-numero">
+                <div style="font-size: 14px; margin-bottom: 5px;">Número de Radicación</div>
+                <div th:text="${numeroRadicacion}"></div>
+            </div>
+
+            <div class="tramite-info">
+                <h3>📋 Información del Trámite</h3>
+                <div class="info-row">
+                    <span class="info-label">Tipo de Trámite:</span>
+                    <span class="info-value" th:text="${tipoTramite}"></span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Objeto:</span>
+                    <span class="info-value" th:text="${objetoTramite}"></span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Fecha de Radicación:</span>
+                    <span class="info-value" th:text="${fechaRadicacion}"></span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Estado Actual:</span>
+                    <span class="info-value">
+                        <span style="background-color: #fff3cd; color: #856404; padding: 5px 15px; border-radius: 15px; font-weight: bold;">
+                            PENDIENTE DOCUMENTOS
+                        </span>
+                    </span>
+                </div>
+            </div>
+
+            <div th:if="${documentosFaltantes and !#strings.isEmpty(documentosFaltantes)}" class="documentos-faltantes">
+                <h4>📄 Documentos Requeridos</h4>
+                <p th:text="${documentosFaltantes}"></p>
+            </div>
+
+            <div class="urgencia">
+                <h3>⏰ Tiempo Límite</h3>
+                <div class="tiempo">IMPORTANTE: PLAZO LIMITADO</div>
+                <p>Debe presentar los documentos dentro del plazo establecido para evitar el archivo del trámite por abandono.</p>
+            </div>
+
+            <div class="instrucciones">
+                <h3>📋 Instrucciones para Entregar Documentos</h3>
+                <ol>
+                    <li><strong>Prepare los documentos:</strong> Asegúrese de que todos los documentos estén completos y sean legibles.</li>
+                    <li><strong>Formato requerido:</strong> Presente los documentos según las especificaciones técnicas establecidas.</li>
+                    <li><strong>Entrega:</strong> Dirija los documentos a la oficina correspondiente o a través de los canales oficiales.</li>
+                    <li><strong>Referencia:</strong> Siempre incluya el número de radicación en su comunicación.</li>
+                    <li><strong>Confirmación:</strong> Solicite confirmación de recepción de los documentos.</li>
+                </ol>
+            </div>
+
+            <div style="text-align: center;">
+                <a th:href="${urlConsulta}" class="action-button">
+                    📋 Ver Requisitos Completos
+                </a>
+            </div>
+
+            <div style="background-color: #ffebee; padding: 20px; border-radius: 8px; margin: 25px 0; border-left: 4px solid #f44336;">
+                <p><strong>⚠️ Advertencia Importante:</strong></p>
+                <ul style="margin: 10px 0; padding-left: 20px;">
+                    <li>El no aporte de documentos dentro del plazo establecido resultará en el archivo del trámite</li>
+                    <li>Una vez archivado, deberá iniciar un nuevo proceso de radicación</li>
+                    <li>Los plazos son improrrogables salvo causas justificadas</li>
+                    <li>Para solicitar prórroga, debe presentar derecho de petición motivado</li>
+                </ul>
+            </div>
+
+            <div style="background-color: #e8f5e8; padding: 20px; border-radius: 8px; margin: 25px 0; border-left: 4px solid #28a745;">
+                <p><strong>💡 Consejos Útiles:</strong></p>
+                <ul style="margin: 10px 0; padding-left: 20px;">
+                    <li>Verifique que todos los documentos cumplan con los requisitos antes de entregarlos</li>
+                    <li>Conserve copias de todos los documentos entregados</li>
+                    <li>Mantenga registro de fechas y personas que reciben los documentos</li>
+                    <li>En caso de dudas, consulte directamente con la entidad</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p><strong>🏛️ Plataforma de Gestión de Trámites</strong></p>
+            <p>Este es un mensaje automático del sistema. Por favor, no responda a este correo.</p>
+            <p>Fecha: <span th:text="${fechaActual}"></span></p>
+            <p>Para consultas, contacte a su entidad correspondiente.</p>
+        </div>
+    </div>
+</body>
+</html>

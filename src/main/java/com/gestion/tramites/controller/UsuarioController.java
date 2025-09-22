@@ -4,6 +4,13 @@ import com.gestion.tramites.service.UsuarioService;
 import com.gestion.tramites.exception.ResourceNotFoundException;
 import com.gestion.tramites.dto.UsuarioDTO; // Importa UsuarioDTO para solicitudes
 import com.gestion.tramites.dto.UsuarioResponseDTO; // Importa UsuarioResponseDTO para respuestas
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,7 +21,9 @@ import java.util.List;
 import jakarta.validation.Valid; // Para usar validaciones en DTOs (opcional, pero buena práctica)
 
 @RestController
-@RequestMapping("/api/v1/usuarios") // Prefijo de la URL para todos los endpoints de usuarios
+@RequestMapping("/api/v1/usuarios")
+@Tag(name = "Usuarios", description = "Gestión de usuarios del sistema")
+@SecurityRequirement(name = "Bearer Authentication")
 public class UsuarioController {
 
     private final UsuarioService usuarioService;

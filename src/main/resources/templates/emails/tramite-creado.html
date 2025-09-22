@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trámite Radicado</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f9fa;
+            color: #333;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 300;
+        }
+        .content {
+            padding: 30px;
+        }
+        .tramite-info {
+            background-color: #f8f9fa;
+            border-left: 4px solid #27ae60;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 0 5px 5px 0;
+        }
+        .tramite-info h3 {
+            margin-top: 0;
+            color: #27ae60;
+            font-size: 16px;
+        }
+        .info-row {
+            margin: 8px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .info-label {
+            font-weight: 600;
+            color: #555;
+            min-width: 120px;
+        }
+        .info-value {
+            color: #333;
+            flex: 1;
+            text-align: right;
+        }
+        .radicacion-numero {
+            background-color: #d4edda;
+            color: #155724;
+            font-family: 'Courier New', monospace;
+            font-size: 18px;
+            font-weight: bold;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            margin: 15px 0;
+            border: 2px dashed #27ae60;
+        }
+        .mensaje-principal {
+            background-color: #d4edda;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+            text-align: center;
+            border-left: 4px solid #27ae60;
+        }
+        .mensaje-principal h2 {
+            color: #155724;
+            margin-top: 0;
+        }
+        .action-button {
+            display: inline-block;
+            background-color: #27ae60;
+            color: white;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 20px 0;
+            font-weight: 600;
+            text-align: center;
+        }
+        .action-button:hover {
+            background-color: #219a52;
+        }
+        .next-steps {
+            background-color: #e3f2fd;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+            border-left: 4px solid #2196f3;
+        }
+        .next-steps h3 {
+            color: #1976d2;
+            margin-top: 0;
+        }
+        .next-steps ul {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+        .next-steps li {
+            margin: 8px 0;
+            color: #333;
+        }
+        .footer {
+            background-color: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            font-size: 12px;
+            color: #6c757d;
+            border-top: 1px solid #dee2e6;
+        }
+        .footer p {
+            margin: 5px 0;
+        }
+        .footer a {
+            color: #27ae60;
+            text-decoration: none;
+        }
+        @media only screen and (max-width: 600px) {
+            .container {
+                width: 100%;
+                margin: 0;
+            }
+            .content {
+                padding: 20px;
+            }
+            .info-row {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .info-value {
+                text-align: left;
+                margin-top: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>✅ Trámite Radicado Exitosamente</h1>
+            <p th:text="${nombreEntidad}"></p>
+        </div>
+
+        <div class="content">
+            <div class="mensaje-principal">
+                <h2>¡Su trámite ha sido radicado!</h2>
+                <p>Estimado/a <strong th:text="${nombreSolicitante}"></strong>,</p>
+                <p>Su trámite ha sido registrado exitosamente en nuestro sistema. A continuación encontrará los detalles:</p>
+            </div>
+
+            <div class="radicacion-numero">
+                <div>Número de Radicación</div>
+                <div th:text="${numeroRadicacion}"></div>
+            </div>
+
+            <div class="tramite-info">
+                <h3>📋 Información del Trámite</h3>
+                <div class="info-row">
+                    <span class="info-label">Tipo de Trámite:</span>
+                    <span class="info-value" th:text="${tipoTramite}"></span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Objeto:</span>
+                    <span class="info-value" th:text="${objetoTramite}"></span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Fecha de Radicación:</span>
+                    <span class="info-value" th:text="${fechaRadicacion}"></span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Estado Actual:</span>
+                    <span class="info-value">
+                        <span class="estado general" th:text="${estadoActual}"></span>
+                    </span>
+                </div>
+            </div>
+
+            <div class="next-steps">
+                <h3>📌 Próximos Pasos</h3>
+                <ul>
+                    <li><strong>Conserve el número de radicación:</strong> Este número es único y le permitirá consultar el estado de su trámite en cualquier momento.</li>
+                    <li><strong>Seguimiento:</strong> Recibirá notificaciones por email cuando el estado de su trámite cambie.</li>
+                    <li><strong>Asignación:</strong> Su trámite será asignado a un revisor especializado en los próximos días hábiles.</li>
+                    <li><strong>Consulta en línea:</strong> Puede consultar el estado de su trámite usando el enlace a continuación.</li>
+                </ul>
+            </div>
+
+            <div style="text-align: center;">
+                <a th:href="${urlConsulta}" class="action-button">
+                    🔍 Consultar Estado del Trámite
+                </a>
+            </div>
+
+            <div style="background-color: #fff3cd; padding: 15px; border-radius: 5px; margin: 20px 0; border-left: 4px solid #ffc107;">
+                <p><strong>⚠️ Importante:</strong></p>
+                <ul style="margin: 10px 0; padding-left: 20px;">
+                    <li>Mantenga este correo como comprobante de radicación</li>
+                    <li>Los tiempos de respuesta varían según el tipo de trámite</li>
+                    <li>Asegúrese de tener toda la documentación requerida lista</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p><strong>Plataforma de Gestión de Trámites</strong></p>
+            <p>Este es un mensaje automático del sistema. Por favor, no responda a este correo.</p>
+            <p>Fecha: <span th:text="${fechaActual}"></span></p>
+            <p>Para consultas, contacte a su entidad correspondiente.</p>
+        </div>
+    </div>
+</body>
+</html>

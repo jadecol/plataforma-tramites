@@ -2,7 +2,11 @@ package com.gestion.tramites.controller;
 
 import com.gestion.tramites.model.ModalidadTramite;
 import com.gestion.tramites.service.ModalidadTramiteService;
-
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,7 +15,9 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/v1/modalidades-tramite") // <--- ¡CAMBIADO AQUÍ!
+@RequestMapping("/api/v1/modalidades-tramite")
+@Tag(name = "Modalidades de Trámite", description = "Gestión de modalidades de trámites")
+@SecurityRequirement(name = "Bearer Authentication")
 public class ModalidadTramiteController {
 
     @Autowired

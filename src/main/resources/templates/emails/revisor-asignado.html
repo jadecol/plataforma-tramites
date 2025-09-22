@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trámite Asignado</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f9fa;
+            color: #333;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 300;
+        }
+        .content {
+            padding: 30px;
+        }
+        .mensaje-principal {
+            background-color: #e3f2fd;
+            padding: 25px;
+            border-radius: 8px;
+            margin: 20px 0;
+            text-align: center;
+            border-left: 4px solid #3498db;
+        }
+        .mensaje-principal h2 {
+            color: #1976d2;
+            margin-top: 0;
+            font-size: 22px;
+        }
+        .mensaje-principal .asignacion {
+            background-color: #1976d2;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            display: inline-block;
+            font-weight: bold;
+            font-size: 16px;
+            margin: 10px 0;
+        }
+        .tramite-info {
+            background-color: #f8f9fa;
+            border-left: 4px solid #3498db;
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .tramite-info h3 {
+            margin-top: 0;
+            color: #3498db;
+            font-size: 18px;
+        }
+        .info-row {
+            margin: 12px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px dotted #dee2e6;
+        }
+        .info-row:last-child {
+            border-bottom: none;
+        }
+        .info-label {
+            font-weight: 600;
+            color: #555;
+            min-width: 140px;
+        }
+        .info-value {
+            color: #333;
+            flex: 1;
+            text-align: right;
+            font-weight: 500;
+        }
+        .radicacion-numero {
+            background-color: #e3f2fd;
+            color: #1976d2;
+            font-family: 'Courier New', monospace;
+            font-size: 18px;
+            font-weight: bold;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            margin: 20px 0;
+            border: 2px solid #3498db;
+        }
+        .responsabilidades {
+            background-color: #fff8e1;
+            border-left: 4px solid #ffc107;
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .responsabilidades h4 {
+            color: #f57f17;
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+        .responsabilidades ul {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+        .responsabilidades li {
+            margin: 8px 0;
+            color: #e65100;
+            line-height: 1.6;
+        }
+        .plazos {
+            background-color: #ffebee;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 25px 0;
+            border-left: 4px solid #f44336;
+            text-align: center;
+        }
+        .plazos h3 {
+            color: #c62828;
+            margin-top: 0;
+            font-size: 18px;
+        }
+        .plazos .tiempo {
+            background-color: #c62828;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            display: inline-block;
+            font-weight: bold;
+            font-size: 14px;
+            margin: 10px 0;
+        }
+        .herramientas {
+            background-color: #e8f5e8;
+            padding: 25px;
+            border-radius: 8px;
+            margin: 25px 0;
+            border-left: 4px solid #4caf50;
+        }
+        .herramientas h3 {
+            color: #388e3c;
+            margin-top: 0;
+            font-size: 18px;
+        }
+        .herramientas ul {
+            margin: 15px 0;
+            padding-left: 25px;
+        }
+        .herramientas li {
+            margin: 10px 0;
+            color: #333;
+            line-height: 1.6;
+        }
+        .action-button {
+            display: inline-block;
+            background-color: #3498db;
+            color: white;
+            padding: 15px 30px;
+            text-decoration: none;
+            border-radius: 8px;
+            margin: 25px 0;
+            font-weight: 600;
+            text-align: center;
+            font-size: 16px;
+        }
+        .action-button:hover {
+            background-color: #2980b9;
+        }
+        .footer {
+            background-color: #f8f9fa;
+            padding: 25px;
+            text-align: center;
+            font-size: 12px;
+            color: #6c757d;
+            border-top: 1px solid #dee2e6;
+        }
+        .footer p {
+            margin: 5px 0;
+        }
+        .footer a {
+            color: #3498db;
+            text-decoration: none;
+        }
+        @media only screen and (max-width: 600px) {
+            .container {
+                width: 100%;
+                margin: 0;
+            }
+            .content {
+                padding: 20px;
+            }
+            .info-row {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .info-value {
+                text-align: left;
+                margin-top: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>👨‍💼 Trámite Asignado</h1>
+            <p th:text="${nombreEntidad}"></p>
+        </div>
+
+        <div class="content">
+            <div class="mensaje-principal">
+                <h2>Nuevo Trámite Asignado</h2>
+                <p>Estimado/a <strong th:text="${nombreRevisor}"></strong>,</p>
+                <div class="asignacion">TRÁMITE ASIGNADO</div>
+                <p>Se le ha asignado un nuevo trámite para revisión y evaluación técnica.</p>
+            </div>
+
+            <div class="radicacion-numero">
+                <div style="font-size: 14px; margin-bottom: 5px;">Número de Radicación</div>
+                <div th:text="${numeroRadicacion}"></div>
+            </div>
+
+            <div class="tramite-info">
+                <h3>📋 Detalles del Trámite Asignado</h3>
+                <div class="info-row">
+                    <span class="info-label">Tipo de Trámite:</span>
+                    <span class="info-value" th:text="${tipoTramite}"></span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Objeto:</span>
+                    <span class="info-value" th:text="${objetoTramite}"></span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Solicitante:</span>
+                    <span class="info-value" th:text="${nombreSolicitante}"></span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Fecha de Radicación:</span>
+                    <span class="info-value" th:text="${fechaRadicacion}"></span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Estado Actual:</span>
+                    <span class="info-value">
+                        <span style="background-color: #e3f2fd; color: #1976d2; padding: 5px 15px; border-radius: 15px; font-weight: bold;">
+                            ASIGNADO
+                        </span>
+                    </span>
+                </div>
+            </div>
+
+            <div class="responsabilidades">
+                <h4>📝 Sus Responsabilidades como Revisor</h4>
+                <ul>
+                    <li><strong>Revisión técnica:</strong> Evaluar el cumplimiento de requisitos técnicos y normativos</li>
+                    <li><strong>Análisis documental:</strong> Verificar la completitud y validez de la documentación</li>
+                    <li><strong>Inspección (si aplica):</strong> Realizar visitas técnicas cuando sea necesario</li>
+                    <li><strong>Concepto técnico:</strong> Emitir concepto fundamentado sobre la viabilidad del trámite</li>
+                    <li><strong>Requerimientos:</strong> Solicitar documentos adicionales si es necesario</li>
+                </ul>
+            </div>
+
+            <div class="plazos">
+                <h3>⏰ Términos y Plazos</h3>
+                <div class="tiempo">TÉRMINOS LEGALES APLICABLES</div>
+                <p>Debe cumplir con los términos establecidos en la normatividad vigente para la evaluación de este tipo de trámite.</p>
+            </div>
+
+            <div class="herramientas">
+                <h3>🛠️ Herramientas Disponibles</h3>
+                <ul>
+                    <li><strong>Plataforma de gestión:</strong> Acceda al expediente completo a través del sistema</li>
+                    <li><strong>Cambio de estado:</strong> Actualice el estado del trámite según el avance de la revisión</li>
+                    <li><strong>Comentarios:</strong> Registre observaciones y requerimientos para el solicitante</li>
+                    <li><strong>Consulta normativa:</strong> Acceda a la base de datos de normatividad aplicable</li>
+                    <li><strong>Historial:</strong> Revise el historial completo de acciones del trámite</li>
+                </ul>
+            </div>
+
+            <div style="text-align: center;">
+                <a th:href="${urlConsulta}" class="action-button">
+                    🔍 Acceder al Expediente
+                </a>
+            </div>
+
+            <div style="background-color: #e1f5fe; padding: 20px; border-radius: 8px; margin: 25px 0; border-left: 4px solid #03a9f4;">
+                <p><strong>📋 Recordatorio de Proceso:</strong></p>
+                <ol style="margin: 10px 0; padding-left: 25px;">
+                    <li>Revisar la documentación completa del trámite</li>
+                    <li>Verificar el cumplimiento de requisitos técnicos</li>
+                    <li>Realizar inspecciones técnicas si son necesarias</li>
+                    <li>Solicitar documentos adicionales si es requerido</li>
+                    <li>Emitir concepto técnico fundamentado</li>
+                    <li>Actualizar el estado del trámite en el sistema</li>
+                </ol>
+            </div>
+
+            <div style="background-color: #fff3cd; padding: 20px; border-radius: 8px; margin: 25px 0; border-left: 4px solid #ffc107;">
+                <p><strong>⚠️ Importante:</strong></p>
+                <ul style="margin: 10px 0; padding-left: 20px;">
+                    <li>Mantenga comunicación fluida con el solicitante cuando sea necesario</li>
+                    <li>Registre todas las acciones realizadas en el sistema</li>
+                    <li>Consulte con superiores en casos de dudas técnicas o normativas</li>
+                    <li>Notifique inmediatamente cualquier irregularidad detectada</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p><strong>🏛️ Plataforma de Gestión de Trámites</strong></p>
+            <p>Este es un mensaje automático del sistema. Por favor, no responda a este correo.</p>
+            <p>Fecha: <span th:text="${fechaActual}"></span></p>
+            <p>Para consultas técnicas, contacte al coordinador de área.</p>
+        </div>
+    </div>
+</body>
+</html>

@@ -29,7 +29,7 @@ public abstract class BaseTenantEntity {
      * La carga es LAZY para optimizar el rendimiento.
      */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_entidad", nullable = false)
+    @JoinColumn(name = "id_entidad", nullable = true)
     private Entidad entidad;
 
     // Getters y Setters

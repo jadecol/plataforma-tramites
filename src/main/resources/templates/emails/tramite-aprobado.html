@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trámite Aprobado</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f9fa;
+            color: #333;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 26px;
+            font-weight: 300;
+        }
+        .celebration {
+            font-size: 40px;
+            margin: 10px 0;
+        }
+        .content {
+            padding: 30px;
+        }
+        .mensaje-principal {
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+            padding: 25px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: center;
+            border: 2px solid #27ae60;
+        }
+        .mensaje-principal h2 {
+            color: #155724;
+            margin-top: 0;
+            font-size: 24px;
+        }
+        .mensaje-principal .resultado {
+            background-color: #155724;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            display: inline-block;
+            font-weight: bold;
+            font-size: 18px;
+            margin: 10px 0;
+        }
+        .tramite-info {
+            background-color: #f8f9fa;
+            border-left: 4px solid #27ae60;
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 0 10px 10px 0;
+        }
+        .tramite-info h3 {
+            margin-top: 0;
+            color: #27ae60;
+            font-size: 18px;
+        }
+        .info-row {
+            margin: 12px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px dotted #dee2e6;
+        }
+        .info-row:last-child {
+            border-bottom: none;
+        }
+        .info-label {
+            font-weight: 600;
+            color: #555;
+            min-width: 140px;
+        }
+        .info-value {
+            color: #333;
+            flex: 1;
+            text-align: right;
+            font-weight: 500;
+        }
+        .radicacion-numero {
+            background-color: #d4edda;
+            color: #155724;
+            font-family: 'Courier New', monospace;
+            font-size: 20px;
+            font-weight: bold;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            margin: 20px 0;
+            border: 2px solid #27ae60;
+        }
+        .comentarios {
+            background-color: #e8f5e8;
+            border-left: 4px solid #27ae60;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .comentarios h4 {
+            color: #155724;
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+        .comentarios p {
+            margin: 0;
+            font-style: italic;
+            color: #2d5a2d;
+        }
+        .action-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+            color: white;
+            padding: 15px 30px;
+            text-decoration: none;
+            border-radius: 8px;
+            margin: 25px 0;
+            font-weight: 600;
+            text-align: center;
+            font-size: 16px;
+            box-shadow: 0 4px 15px rgba(39, 174, 96, 0.3);
+        }
+        .action-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(39, 174, 96, 0.4);
+        }
+        .next-steps {
+            background-color: #e3f2fd;
+            padding: 25px;
+            border-radius: 8px;
+            margin: 25px 0;
+            border-left: 4px solid #2196f3;
+        }
+        .next-steps h3 {
+            color: #1976d2;
+            margin-top: 0;
+            font-size: 18px;
+        }
+        .next-steps ul {
+            margin: 15px 0;
+            padding-left: 25px;
+        }
+        .next-steps li {
+            margin: 10px 0;
+            color: #333;
+            line-height: 1.6;
+        }
+        .footer {
+            background-color: #f8f9fa;
+            padding: 25px;
+            text-align: center;
+            font-size: 12px;
+            color: #6c757d;
+            border-top: 1px solid #dee2e6;
+        }
+        .footer p {
+            margin: 5px 0;
+        }
+        .footer a {
+            color: #27ae60;
+            text-decoration: none;
+        }
+        @media only screen and (max-width: 600px) {
+            .container {
+                width: 100%;
+                margin: 0;
+            }
+            .content {
+                padding: 20px;
+            }
+            .info-row {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .info-value {
+                text-align: left;
+                margin-top: 5px;
+            }
+            .celebration {
+                font-size: 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="celebration">🎉✅🎉</div>
+            <h1>¡TRÁMITE APROBADO!</h1>
+            <p th:text="${nombreEntidad}"></p>
+        </div>
+
+        <div class="content">
+            <div class="mensaje-principal">
+                <h2>¡Felicitaciones!</h2>
+                <p>Estimado/a <strong th:text="${nombreSolicitante}"></strong>,</p>
+                <div class="resultado">TRÁMITE APROBADO</div>
+                <p>Nos complace informarle que su trámite ha sido <strong>APROBADO</strong> satisfactoriamente.</p>
+            </div>
+
+            <div class="radicacion-numero">
+                <div style="font-size: 14px; margin-bottom: 5px;">Número de Radicación</div>
+                <div th:text="${numeroRadicacion}"></div>
+            </div>
+
+            <div class="tramite-info">
+                <h3>📋 Detalles del Trámite Aprobado</h3>
+                <div class="info-row">
+                    <span class="info-label">Tipo de Trámite:</span>
+                    <span class="info-value" th:text="${tipoTramite}"></span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Objeto:</span>
+                    <span class="info-value" th:text="${objetoTramite}"></span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Fecha de Radicación:</span>
+                    <span class="info-value" th:text="${fechaRadicacion}"></span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Fecha de Aprobación:</span>
+                    <span class="info-value" th:text="${fechaUltimoCambio}"></span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Estado Final:</span>
+                    <span class="info-value">
+                        <span style="background-color: #d4edda; color: #155724; padding: 5px 15px; border-radius: 15px; font-weight: bold;">
+                            APROBADO
+                        </span>
+                    </span>
+                </div>
+            </div>
+
+            <div th:if="${comentarios and !#strings.isEmpty(comentarios)}" class="comentarios">
+                <h4>💬 Observaciones del Revisor</h4>
+                <p th:text="${comentarios}"></p>
+            </div>
+
+            <div class="next-steps">
+                <h3>📌 Próximos Pasos</h3>
+                <ul>
+                    <li><strong>Documentación oficial:</strong> Recibirá la documentación oficial correspondiente a este trámite según los procedimientos de la entidad.</li>
+                    <li><strong>Archivo del expediente:</strong> Conserve este correo y el número de radicación como evidencia de la aprobación.</li>
+                    <li><strong>Consultas futuras:</strong> Puede consultar el estado final del trámite usando el enlace a continuación.</li>
+                    <li><strong>Vigencia:</strong> Verifique los términos de vigencia de la aprobación según el tipo de trámite.</li>
+                </ul>
+            </div>
+
+            <div style="text-align: center;">
+                <a th:href="${urlConsulta}" class="action-button">
+                    📄 Ver Certificado de Aprobación
+                </a>
+            </div>
+
+            <div style="background-color: #d1ecf1; padding: 20px; border-radius: 8px; margin: 25px 0; border-left: 4px solid #17a2b8;">
+                <p><strong>ℹ️ Información Importante:</strong></p>
+                <ul style="margin: 10px 0; padding-left: 20px;">
+                    <li>Este correo constituye notificación oficial de la aprobación</li>
+                    <li>Mantenga el número de radicación para futuras referencias</li>
+                    <li>La documentación oficial será enviada según los procedimientos establecidos</li>
+                    <li>Para consultas adicionales, contacte directamente a la entidad</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p><strong>🏛️ Plataforma de Gestión de Trámites</strong></p>
+            <p>Este es un mensaje automático del sistema. Por favor, no responda a este correo.</p>
+            <p>Fecha: <span th:text="${fechaActual}"></span></p>
+            <p>Para consultas, contacte a su entidad correspondiente.</p>
+        </div>
+    </div>
+</body>
+</html>

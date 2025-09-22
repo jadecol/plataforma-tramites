@@ -61,7 +61,7 @@ public class AuthService {
         usuarioRepository.save(usuario);
 
         return new JwtResponse(token, usuario.getIdUsuario(), usuario.getCorreoElectronico(),
-                usuario.getRol(), usuario.getNombreCompleto());
+                usuario.getRol().name(), usuario.getNombreCompleto());
     }
 
     public void registerUser(RegisterRequest registerRequest) {
@@ -75,7 +75,7 @@ public class AuthService {
         nuevoUsuario.setNombreCompleto(registerRequest.getNombreCompleto());
         nuevoUsuario.setTipoDocumento(registerRequest.getTipoDocumento());
         nuevoUsuario.setNumeroDocumento(registerRequest.getNumeroDocumento());
-        nuevoUsuario.setRol(registerRequest.getRol());
+        nuevoUsuario.setRol(Usuario.Rol.valueOf(registerRequest.getRol()));
         nuevoUsuario.setFechaCreacion(LocalDateTime.now());
         nuevoUsuario.setEstaActivo(true);
 

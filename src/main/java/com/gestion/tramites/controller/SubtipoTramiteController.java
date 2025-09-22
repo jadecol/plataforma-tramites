@@ -1,8 +1,12 @@
 package com.gestion.tramites.controller;
 
-import com.gestion.tramites.model.SubtipoTramite; // ¡Debe ser SubtipoTramite!
-import com.gestion.tramites.service.SubtipoTramiteService; // ¡Debe ser SubtipoTramiteService!
-
+import com.gestion.tramites.model.SubtipoTramite;
+import com.gestion.tramites.service.SubtipoTramiteService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,7 +15,9 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/v1/subtipos") // ¡Esta es la ruta para subtipos!
+@RequestMapping("/api/v1/subtipos")
+@Tag(name = "Subtipos de Trámite", description = "Gestión de subtipos de trámites")
+@SecurityRequirement(name = "Bearer Authentication")
 public class SubtipoTramiteController {
 
     @Autowired

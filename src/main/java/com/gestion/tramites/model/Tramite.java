@@ -43,6 +43,9 @@ public class Tramite extends BaseTenantEntity {
     @Column(name = "comentarios_revisor", length = 1000)
     private String comentariosRevisor;
 
+    @Column(name = "observaciones", length = 1000)
+    private String observaciones;
+
     @Column(name = "fecha_creacion", nullable = false)
     private LocalDateTime fechaCreacion;
 
@@ -193,4 +196,6 @@ public class Tramite extends BaseTenantEntity {
     public void setModalidadTramite(ModalidadTramite modalidadTramite) { this.modalidadTramite = modalidadTramite; }
     public SubtipoTramite getSubtipoTramite() { return subtipoTramite; }
     public void setSubtipoTramite(SubtipoTramite subtipoTramite) { this.subtipoTramite = subtipoTramite; }
+    public String getObservaciones() { return observaciones; }
+    public void setObservaciones(String observaciones) { this.observaciones = observaciones; }
 }

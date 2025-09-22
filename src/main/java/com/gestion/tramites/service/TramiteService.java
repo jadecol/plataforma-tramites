@@ -41,6 +41,9 @@ public class TramiteService {
     @Autowired
     private ModelMapper modelMapper;
 
+    @Autowired
+    private NotificacionService notificacionService;
+
     // ============ MÉTODOS MULTI-TENANT (con filtrado automático) ============
 
     /**
@@ -97,6 +100,10 @@ public class TramiteService {
         }
 
         Tramite tramiteGuardado = tramiteRepository.save(tramite);
+
+        // Enviar notificación de trámite creado
+        notificacionService.enviarNotificacionTramiteCreado(tramiteGuardado);
+
         return convertToResponseDTO(tramiteGuardado);
     }
 
@@ -156,6 +163,9 @@ public class TramiteService {
         // Validar transición de estado
         validarTransicionEstado(tramite.getEstadoActual(), nuevoEstado);
 
+        // Guardar estado anterior para notificación
+        Tramite.EstadoTramite estadoAnterior = tramite.getEstadoActual();
+
         // Actualizar estado
         tramite.cambiarEstado(nuevoEstado, comentarios);
 
@@ -168,6 +178,15 @@ public class TramiteService {
         }
 
         Tramite tramiteActualizado = tramiteRepository.save(tramite);
+
+        // Enviar notificación de cambio de estado
+        notificacionService.enviarNotificacionCambioEstado(tramiteActualizado, estadoAnterior, comentarios);
+
+        // Enviar notificación específica para documentos pendientes
+        if (nuevoEstado == Tramite.EstadoTramite.PENDIENTE_DOCUMENTOS) {
+            notificacionService.enviarNotificacionDocumentosPendientes(tramiteActualizado, comentarios);
+        }
+
         return convertToResponseDTO(tramiteActualizado);
     }
 
@@ -197,6 +216,10 @@ public class TramiteService {
                 "Asignado a revisor: " + revisor.getNombreCompleto());
 
         Tramite tramiteActualizado = tramiteRepository.save(tramite);
+
+        // Enviar notificación de asignación al revisor
+        notificacionService.enviarNotificacionAsignacionRevisor(tramiteActualizado, revisor);
+
         return convertToResponseDTO(tramiteActualizado);
     }
 

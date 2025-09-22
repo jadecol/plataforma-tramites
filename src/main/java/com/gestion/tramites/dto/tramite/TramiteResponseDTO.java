@@ -282,4 +282,9 @@ public class TramiteResponseDTO {
     public void setNombreSubtipoTramite(String nombreSubtipoTramite) {
         this.nombreSubtipoTramite = nombreSubtipoTramite;
     }
+
+    // Método alias para compatibility con tests
+    public Long getId() {
+        return this.idTramite;
+    }
 }

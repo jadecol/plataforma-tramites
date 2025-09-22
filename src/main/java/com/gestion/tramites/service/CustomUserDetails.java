@@ -22,7 +22,7 @@ public class CustomUserDetails implements UserDetails {
         this.idUsuario = usuario.getIdUsuario();
         this.correoElectronico = usuario.getCorreoElectronico();
         this.contrasenaHash = usuario.getContrasenaHash();
-        this.rol = usuario.getRol();
+        this.rol = usuario.getRol().name();
         this.estaActivo = usuario.getEstaActivo();
 
         // Extraer información de la entidad

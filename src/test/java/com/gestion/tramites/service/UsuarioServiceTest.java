@@ -60,7 +60,7 @@ class UsuarioServiceTest {
         usuario.setNombreCompleto("Test User");
         usuario.setCorreoElectronico("test@example.com");
         usuario.setContrasenaHash("hashedPassword");
-        usuario.setRol("SOLICITANTE");
+        usuario.setRol(Usuario.Rol.SOLICITANTE);
         usuario.setFechaCreacion(LocalDateTime.now());
         usuario.setEstaActivo(true);
         usuario.setEntidad(entidad);
@@ -136,7 +136,7 @@ class UsuarioServiceTest {
         Usuario anotherUser = new Usuario();
         anotherUser.setIdUsuario(2L);
         anotherUser.setCorreoElectronico("another@example.com");
-        anotherUser.setRol("ADMIN");
+        anotherUser.setRol(Usuario.Rol.ADMIN_GLOBAL);
         anotherUser.setEstaActivo(true);
 
         when(usuarioRepository.findAll()).thenReturn(Arrays.asList(usuario, anotherUser));
@@ -183,7 +183,7 @@ class UsuarioServiceTest {
         UsuarioDTO updateDTO = new UsuarioDTO();
         updateDTO.setNombreCompleto("Updated Name");
         updateDTO.setCorreoElectronico("updated@example.com");
-        updateDTO.setRol("ADMIN");
+        updateDTO.setRol("ADMIN_GLOBAL");
         updateDTO.setContrasenaHash("newPassword");
         updateDTO.setIdEntidad(1L);
 
@@ -198,7 +198,7 @@ class UsuarioServiceTest {
         assertNotNull(result);
         assertEquals("Updated Name", result.getNombreCompleto());
         assertEquals("updated@example.com", result.getCorreoElectronico());
-        assertEquals("ADMIN", result.getRol());
+        assertEquals("ADMIN_GLOBAL", result.getRol());
         verify(usuarioRepository, times(1)).save(any(Usuario.class));
     }
 
@@ -241,6 +241,7 @@ class UsuarioServiceTest {
         UsuarioDTO updateDTO = new UsuarioDTO();
         updateDTO.setNombreCompleto("Updated Name");
         updateDTO.setCorreoElectronico("test@example.com"); // Same email
+        updateDTO.setRol("SOLICITANTE"); // Add valid role
         updateDTO.setIdEntidad(99L); // Non-existent entity
 
         when(usuarioRepository.findById(anyLong())).thenReturn(Optional.of(usuario));

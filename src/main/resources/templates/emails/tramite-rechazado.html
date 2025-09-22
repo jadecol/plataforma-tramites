@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resolución de Trámite</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f9fa;
+            color: #333;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 300;
+        }
+        .content {
+            padding: 30px;
+        }
+        .mensaje-principal {
+            background-color: #f8d7da;
+            padding: 25px;
+            border-radius: 8px;
+            margin: 20px 0;
+            text-align: center;
+            border-left: 4px solid #e74c3c;
+        }
+        .mensaje-principal h2 {
+            color: #721c24;
+            margin-top: 0;
+            font-size: 22px;
+        }
+        .mensaje-principal .resultado {
+            background-color: #721c24;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            display: inline-block;
+            font-weight: bold;
+            font-size: 16px;
+            margin: 10px 0;
+        }
+        .tramite-info {
+            background-color: #f8f9fa;
+            border-left: 4px solid #e74c3c;
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .tramite-info h3 {
+            margin-top: 0;
+            color: #e74c3c;
+            font-size: 18px;
+        }
+        .info-row {
+            margin: 12px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px dotted #dee2e6;
+        }
+        .info-row:last-child {
+            border-bottom: none;
+        }
+        .info-label {
+            font-weight: 600;
+            color: #555;
+            min-width: 140px;
+        }
+        .info-value {
+            color: #333;
+            flex: 1;
+            text-align: right;
+            font-weight: 500;
+        }
+        .radicacion-numero {
+            background-color: #f8d7da;
+            color: #721c24;
+            font-family: 'Courier New', monospace;
+            font-size: 18px;
+            font-weight: bold;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            margin: 20px 0;
+            border: 2px solid #e74c3c;
+        }
+        .motivos {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .motivos h4 {
+            color: #856404;
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+        .motivos p {
+            margin: 0;
+            color: #856404;
+            line-height: 1.8;
+        }
+        .recursos {
+            background-color: #e1f5fe;
+            padding: 25px;
+            border-radius: 8px;
+            margin: 25px 0;
+            border-left: 4px solid #2196f3;
+        }
+        .recursos h3 {
+            color: #1976d2;
+            margin-top: 0;
+            font-size: 18px;
+        }
+        .recursos ul {
+            margin: 15px 0;
+            padding-left: 25px;
+        }
+        .recursos li {
+            margin: 10px 0;
+            color: #333;
+            line-height: 1.6;
+        }
+        .action-button {
+            display: inline-block;
+            background-color: #2196f3;
+            color: white;
+            padding: 15px 30px;
+            text-decoration: none;
+            border-radius: 8px;
+            margin: 25px 0;
+            font-weight: 600;
+            text-align: center;
+            font-size: 16px;
+        }
+        .action-button:hover {
+            background-color: #1976d2;
+        }
+        .footer {
+            background-color: #f8f9fa;
+            padding: 25px;
+            text-align: center;
+            font-size: 12px;
+            color: #6c757d;
+            border-top: 1px solid #dee2e6;
+        }
+        .footer p {
+            margin: 5px 0;
+        }
+        .footer a {
+            color: #2196f3;
+            text-decoration: none;
+        }
+        @media only screen and (max-width: 600px) {
+            .container {
+                width: 100%;
+                margin: 0;
+            }
+            .content {
+                padding: 20px;
+            }
+            .info-row {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .info-value {
+                text-align: left;
+                margin-top: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📋 Resolución de Trámite</h1>
+            <p th:text="${nombreEntidad}"></p>
+        </div>
+
+        <div class="content">
+            <div class="mensaje-principal">
+                <h2>Resolución de su Trámite</h2>
+                <p>Estimado/a <strong th:text="${nombreSolicitante}"></strong>,</p>
+                <div class="resultado">NO APROBADO</div>
+                <p>Lamentamos informarle que su trámite no ha sido aprobado en esta oportunidad.</p>
+            </div>
+
+            <div class="radicacion-numero">
+                <div style="font-size: 14px; margin-bottom: 5px;">Número de Radicación</div>
+                <div th:text="${numeroRadicacion}"></div>
+            </div>
+
+            <div class="tramite-info">
+                <h3>📋 Detalles del Trámite</h3>
+                <div class="info-row">
+                    <span class="info-label">Tipo de Trámite:</span>
+                    <span class="info-value" th:text="${tipoTramite}"></span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Objeto:</span>
+                    <span class="info-value" th:text="${objetoTramite}"></span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Fecha de Radicación:</span>
+                    <span class="info-value" th:text="${fechaRadicacion}"></span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Fecha de Resolución:</span>
+                    <span class="info-value" th:text="${fechaUltimoCambio}"></span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Estado Final:</span>
+                    <span class="info-value">
+                        <span style="background-color: #f8d7da; color: #721c24; padding: 5px 15px; border-radius: 15px; font-weight: bold;">
+                            NO APROBADO
+                        </span>
+                    </span>
+                </div>
+            </div>
+
+            <div th:if="${comentarios and !#strings.isEmpty(comentarios)}" class="motivos">
+                <h4>📝 Motivos de la No Aprobación</h4>
+                <p th:text="${comentarios}"></p>
+            </div>
+
+            <div class="recursos">
+                <h3>⚖️ Derechos y Recursos Disponibles</h3>
+                <ul>
+                    <li><strong>Derecho de Petición:</strong> Puede solicitar aclaraciones adicionales sobre la decisión mediante derecho de petición.</li>
+                    <li><strong>Recurso de Reposición:</strong> Puede interponer recurso de reposición dentro de los términos legales establecidos.</li>
+                    <li><strong>Nueva Solicitud:</strong> Puede presentar una nueva solicitud subsanando las observaciones realizadas.</li>
+                    <li><strong>Asesoría:</strong> Contacte a la entidad para obtener asesoría sobre los pasos a seguir.</li>
+                </ul>
+            </div>
+
+            <div style="text-align: center;">
+                <a th:href="${urlConsulta}" class="action-button">
+                    📄 Ver Resolución Completa
+                </a>
+            </div>
+
+            <div style="background-color: #fff3cd; padding: 20px; border-radius: 8px; margin: 25px 0; border-left: 4px solid #ffc107;">
+                <p><strong>⚠️ Información Importante:</strong></p>
+                <ul style="margin: 10px 0; padding-left: 20px;">
+                    <li>Esta decisión se fundamenta en la normatividad vigente</li>
+                    <li>Usted tiene derecho a interponer los recursos legales correspondientes</li>
+                    <li>Los términos para interponer recursos se cuentan a partir de la notificación</li>
+                    <li>Para más información, contacte directamente a la entidad</li>
+                </ul>
+            </div>
+
+            <div style="background-color: #e8f5e8; padding: 20px; border-radius: 8px; margin: 25px 0; border-left: 4px solid #28a745;">
+                <p><strong>💡 Recomendaciones:</strong></p>
+                <ul style="margin: 10px 0; padding-left: 20px;">
+                    <li>Revise cuidadosamente los motivos de la no aprobación</li>
+                    <li>Consulte la normatividad aplicable a su tipo de trámite</li>
+                    <li>Considere obtener asesoría técnica especializada</li>
+                    <li>Prepare la documentación necesaria para subsanar las observaciones</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p><strong>🏛️ Plataforma de Gestión de Trámites</strong></p>
+            <p>Este es un mensaje automático del sistema. Por favor, no responda a este correo.</p>
+            <p>Fecha: <span th:text="${fechaActual}"></span></p>
+            <p>Para consultas, contacte a su entidad correspondiente.</p>
+        </div>
+    </div>
+</body>
+</html>
