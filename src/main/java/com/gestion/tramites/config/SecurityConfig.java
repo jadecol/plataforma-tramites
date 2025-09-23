@@ -56,13 +56,8 @@ public class SecurityConfig {
                 .sessionManagement(
                         session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(
-                        authorize -> authorize.requestMatchers("/api/v1/auth/**").permitAll() // Rutas
-                                                                                              // de
-                                                                                              // autenticación
-                                .requestMatchers("/api/public/**").permitAll() // Rutas públicas
-                                .requestMatchers("/api/test/**").permitAll() // AGREGADO: Endpoint
-                                                                             // de test
-                                .requestMatchers("/actuator/health").permitAll() // Health check
+                        authorize -> authorize
+                                .requestMatchers("/api/v1/auth/**", "/api/public/**", "/api/test/**", "/actuator/health").permitAll()
                                 .anyRequest().authenticated())
                 .authenticationProvider(authenticationProvider()).addFilterBefore(
                         jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

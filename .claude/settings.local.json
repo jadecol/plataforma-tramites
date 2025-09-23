@@ -10,7 +10,11 @@
       "Bash(mvn compile:*)",
       "Bash(mvn test-compile:*)",
       "Bash(mvn spring-boot:run:*)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(netstat:*)",
+      "Bash(findstr:*)",
+      "Bash(taskkill:*)",
+      "Bash(wmic:*)"
     ],
     "deny": [],
     "ask": []

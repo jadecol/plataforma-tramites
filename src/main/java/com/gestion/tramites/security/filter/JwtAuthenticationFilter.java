@@ -36,6 +36,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
+        // Skip JWT processing for permitted paths
+        String requestPath = request.getRequestURI();
+        if (requestPath.startsWith("/api/v1/auth/") ||
+            requestPath.startsWith("/api/public/") ||
+            requestPath.startsWith("/api/test/") ||
+            requestPath.equals("/actuator/health")) {
+            logger.info("SKIPPING JWT processing for permitted path: {}", requestPath);
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        logger.info("PROCESSING JWT for path: {}", requestPath);
+
         final String authorizationHeader = request.getHeader("Authorization");
 
         String username = null;

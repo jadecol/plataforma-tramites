@@ -11,6 +11,10 @@ import io.jsonwebtoken.security.Keys; // Importar Keys para generar claves segur
                                       // generación en caliente)
 import io.jsonwebtoken.security.SignatureException; // Importar SignatureException
 
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import javax.crypto.SecretKey;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -38,10 +42,13 @@ public class JwtUtil {
 
     // 1. Obtiene la clave de firma (Key) a partir de la cadena secreta
     private SecretKey getSigningKey() {
-        // Tu secreto ya está en Base64, así que lo decodificamos directamente.
-        // Asegúrate de que el secreto en application.properties sea una cadena BASE64 válida y lo
-        // suficientemente larga.
-        byte[] keyBytes = Decoders.BASE64.decode(secret);
+        // Convert string secret to bytes and create key suitable for HS512
+        byte[] keyBytes = secret.getBytes(StandardCharsets.UTF_8);
+        // Ensure key is at least 512 bits (64 bytes) for HS512
+        if (keyBytes.length < 64) {
+            // Pad with zeros if needed
+            keyBytes = Arrays.copyOf(keyBytes, 64);
+        }
         return Keys.hmacShaKeyFor(keyBytes);
     }
 

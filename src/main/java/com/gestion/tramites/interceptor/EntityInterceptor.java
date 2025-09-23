@@ -24,6 +24,16 @@ public class EntityInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response,
             Object handler) throws Exception {
 
+        // Skip interceptor for permitted paths
+        String requestPath = request.getRequestURI();
+        if (requestPath.startsWith("/api/v1/auth/") ||
+            requestPath.startsWith("/api/public/") ||
+            requestPath.startsWith("/api/test/") ||
+            requestPath.equals("/actuator/health")) {
+            log.debug("SKIPPING EntityInterceptor for permitted path: {}", requestPath);
+            return true;
+        }
+
         // Obtener el usuario autenticado
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
